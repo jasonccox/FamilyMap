@@ -1,0 +1,76 @@
+package com.jasoncarloscox.familymap.server.request;
+
+/**
+ * A request to the <code>/user/login</code> route. It is a request to
+ * log a user into the server.
+ */
+public class LoginRequest extends ApiRequest {
+
+    private String userName;
+    private String password;
+
+    /**
+     * Creates a new LoginRequest.
+     * 
+     * @param userName the user's username
+     * @param password the user's password
+     */
+    public LoginRequest(String userName, String password) {
+        super();
+        setUserName(userName);
+        setPassword(password);
+    }
+
+    /**
+     * @return the user's username
+     */
+    public String getUserName() {
+        return userName;
+    }
+
+    /**
+     * @param userName the user's username
+     */
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    /**
+     * @return the user's password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * @param password the user's password
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
+     * @return the path used to make this request
+     */
+    @Override
+    public String getPath() {
+        return "/user/login";
+    }
+
+    /**
+     * @return the HTTP method used to make this request
+     */
+    @Override
+    public String getMethod() {
+        return "POST";
+    }
+
+    /**
+     * @return whether a body needs to be sent with this request
+     */
+    @Override
+    public boolean sendBody() {
+        return true;
+    }
+
+}
