@@ -1,5 +1,7 @@
 package com.jasoncarloscox.familymap.server;
 
+import android.util.Log;
+
 import com.jasoncarloscox.familymap.model.Gender;
 import com.jasoncarloscox.familymap.model.User;
 import com.jasoncarloscox.familymap.server.request.EventsRequest;
@@ -13,20 +15,46 @@ import com.jasoncarloscox.familymap.server.result.PersonsResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import static org.junit.Assert.*;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ServerProxy.class, Log.class})
 public class ServerProxyTest {
 
     // TODO: change these tests to use a mock server, not the real thing
 
     ServerProxy server;
 
+    HttpURLConnection mockConn;
+
     @Before
     public void setup() throws Exception {
         ServerProxy.setHost("localhost");
         ServerProxy.setPort(8080);
         server = new ServerProxy();
+
+        // mock the HttpURLConnection in order to test without the server
+        URL url = PowerMockito.mock(URL.class);
+        PowerMockito.whenNew(URL.class).withAnyArguments().thenReturn(url);
+        mockConn = PowerMockito.mock(HttpURLConnection.class);
+        PowerMockito.when(url.openConnection()).thenReturn(mockConn);
+        PowerMockito.doNothing().when(mockConn).connect();
+        PowerMockito.when(mockConn.getOutputStream()).thenReturn(new ByteArrayOutputStream());
+
+        // mock the Log class
+        PowerMockito.mockStatic(Log.class);
     }
 
     @After
@@ -34,7 +62,10 @@ public class ServerProxyTest {
     }
 
     @Test
-    public void loginReturnsAuthTokenAndPersonId() {
+    public void loginReturnsAuthTokenAndPersonId() throws IOException {
+        String mockResBody = "{\"authToken\":\"abc\", \"personID\":\"pid\"}";
+        setMockResponse(HttpURLConnection.HTTP_OK, mockResBody);
+
         LoginRequest req = new LoginRequest("uname", "password");
         LoginResult res = server.login(req);
 
@@ -44,15 +75,22 @@ public class ServerProxyTest {
     }
 
     @Test
-    public void loginReturnsNotSuccessOnError() {
+    public void loginReturnsNotSuccessAndMessageOnError() throws IOException {
+        String mockResBody = "{\"message\":\"abc\"}";
+        setMockResponse(HttpURLConnection.HTTP_BAD_REQUEST, mockResBody);
+
         LoginRequest req = new LoginRequest("uname", "invalid");
         LoginResult res = server.login(req);
 
         assertFalse(res.isSuccess());
+        assertNotNull(res.getMessage());
     }
 
     @Test
-    public void registerReturnsAuthTokenAndPersonId() {
+    public void registerReturnsAuthTokenAndPersonId() throws IOException {
+        String mockResBody = "{\"authToken\":\"abc\", \"personID\":\"pid\"}";
+        setMockResponse(HttpURLConnection.HTTP_OK, mockResBody);
+
         User newUser = new User("uname", "password");
         newUser.setFirstName("f");
         newUser.setLastName("l");
@@ -68,69 +106,76 @@ public class ServerProxyTest {
     }
 
     @Test
-    public void registerReturnsNotSuccessOnError() {
-        User newUser = new User(null, null);
+    public void registerReturnsNotSuccessAndMessageOnError() throws IOException {
+        String mockResBody = "{\"message\":\"abc\"}";
+        setMockResponse(HttpURLConnection.HTTP_BAD_REQUEST, mockResBody);
 
-        RegisterRequest req = new RegisterRequest(newUser);
+        RegisterRequest req = new RegisterRequest(new User(null, null));
         LoginResult res = server.register(req);
 
         assertFalse(res.isSuccess());
+        assertNotNull(res.getMessage());
     }
 
     @Test
-    public void getPersonsReturnsPersons() {
-        User newUser = new User("uname", "password");
-        newUser.setFirstName("f");
-        newUser.setLastName("l");
-        newUser.setGender(Gender.MALE);
-        newUser.setEmail("e");
+    public void getPersonsReturnsPersons() throws IOException {
+        String mockResBody = "{\"data\":[{\"personID\":\"p\"}]}";
+        setMockResponse(HttpURLConnection.HTTP_OK, mockResBody);
 
-        RegisterRequest req = new RegisterRequest(newUser);
-        LoginResult res = server.register(req);
+        PersonsRequest req = new PersonsRequest("token");
+        PersonsResult res = server.getPersons(req);
 
         assertTrue(res.isSuccess());
-
-        PersonsRequest req2 = new PersonsRequest(res.getAuthToken());
-        PersonsResult res2 = server.getPersons(req2);
-
-        assertTrue(res2.isSuccess());
-        assertNotNull(res2.getPersons());
+        assertNotNull(res.getPersons());
     }
 
     @Test
-    public void getPersonsReturnsNotSuccessOnError() {
+    public void getPersonsReturnsNotSuccessAndMessageOnError() throws IOException {
+        String mockResBody = "{\"message\":\"abc\"}";
+        setMockResponse(HttpURLConnection.HTTP_BAD_REQUEST, mockResBody);
+
         PersonsRequest req = new PersonsRequest("invalidtoken");
         PersonsResult res = server.getPersons(req);
 
         assertFalse(res.isSuccess());
+        assertNotNull(res.getMessage());
     }
 
     @Test
-    public void getEventsReturnsEvents() {
-        User newUser = new User("uname", "password");
-        newUser.setFirstName("f");
-        newUser.setLastName("l");
-        newUser.setGender(Gender.MALE);
-        newUser.setEmail("e");
+    public void getEventsReturnsEvents() throws IOException {
+        String mockResBody = "{\"data\":[{\"eventID\":\"eid\"}]}";
+        setMockResponse(HttpURLConnection.HTTP_OK, mockResBody);
 
-        RegisterRequest req = new RegisterRequest(newUser);
-        LoginResult res = server.register(req);
+        EventsRequest req = new EventsRequest("token");
+        EventsResult res = server.getEvents(req);
 
         assertTrue(res.isSuccess());
-
-        EventsRequest req2 = new EventsRequest(res.getAuthToken());
-        EventsResult res2 = server.getEvents(req2);
-
-        assertTrue(res2.isSuccess());
-        assertNotNull(res2.getEvents());
+        assertNotNull(res.getEvents());
     }
 
     @Test
-    public void getEventsReturnsNotSuccessOnError() {
+    public void getEventsReturnsNotSuccessAndMessageOnError() throws IOException {
+        String mockResBody = "{\"message\":\"abc\"}";
+        setMockResponse(HttpURLConnection.HTTP_BAD_REQUEST, mockResBody);
+
         EventsRequest req = new EventsRequest("invalidtoken");
         EventsResult res = server.getEvents(req);
 
         assertFalse(res.isSuccess());
+        assertNotNull(res.getMessage());
+    }
 
+    private void setMockResponse(int code, String body) throws IOException {
+        PowerMockito.when(mockConn.getResponseCode()).thenReturn(code);
+
+        InputStream mockResponseStream = new ByteArrayInputStream(body.getBytes());
+
+        if (code >= HttpURLConnection.HTTP_BAD_REQUEST) {
+            PowerMockito.when(mockConn.getErrorStream())
+                    .thenReturn(mockResponseStream);
+        } else {
+            PowerMockito.when(mockConn.getInputStream())
+                    .thenReturn(mockResponseStream);
+        }
     }
 }
