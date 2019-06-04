@@ -33,8 +33,6 @@ import static org.junit.Assert.*;
 @PrepareForTest({ServerProxy.class, Log.class})
 public class ServerProxyTest {
 
-    // TODO: change these tests to use a mock server, not the real thing
-
     ServerProxy server;
 
     HttpURLConnection mockConn;
