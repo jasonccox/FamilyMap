@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.LoginFragment">
+    tools:context=".ui.LoginFragment">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -36,7 +37,7 @@
                     android:layout_marginBottom="0dp"
                     android:gravity="end"
                     android:text="@string/server_address"
-                    android:textColor="@color/colorPrimaryLight"
+                    android:textColor="@color/colorPrimaryLightText"
                     tools:layout_editor_absoluteX="5dp" />
 
                 <LinearLayout
@@ -52,18 +53,37 @@
                         android:layout_height="wrap_content"
                         android:gravity="end"
                         android:text="@string/protocol"
-                        android:textColor="@color/colorPrimaryLight"
+                        android:textColor="@color/colorPrimaryLightText"
                         android:textSize="12sp" />
 
-                    <EditText
-                        android:id="@+id/login_edit_host"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:hint="@string/host"
-                        android:textColor="@color/colorPrimary"
-                        android:inputType="textUri" />
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/login_edit_host"
+                            android:importantForAutofill="no"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minEms="10"
+                            android:hint="@string/host"
+                            android:inputType="textUri"
+                            android:singleLine="true"
+                            android:textColor="@color/colorPrimaryText" />
+
+                        <TextView
+                            android:id="@+id/login_txt_error_host"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/login_edit_host"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="-8dp"
+                            android:text="Error"
+                            android:textSize="10sp"
+                            android:textColor="@color/colorError"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
 
                     <TextView
                         android:id="@+id/textView7"
@@ -71,18 +91,39 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0"
                         android:text=":"
-                        android:textColor="@color/colorPrimaryLight"
+                        android:textColor="@color/colorPrimaryLightText"
                         android:textSize="12sp" />
 
-                    <EditText
-                        android:id="@+id/login_edit_port"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:ems="4"
-                        android:hint="@string/port"
-                        android:textColor="@color/colorPrimary"
-                        android:inputType="number" />
+                        android:layout_weight="0">
+
+                        <EditText
+                            android:id="@+id/login_edit_port"
+                            android:importantForAutofill="no"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minEms="4"
+                            android:maxEms="4"
+                            android:hint="@string/port"
+                            android:inputType="number"
+                            android:singleLine="true"
+                            android:textColor="@color/colorPrimaryText" />
+
+                        <TextView
+                            android:id="@+id/login_txt_error_port"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/login_edit_port"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="-8dp"
+                            android:text="Error"
+                            android:textSize="10sp"
+                            android:textColor="@color/colorError"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
+
                 </LinearLayout>
 
             </LinearLayout>
@@ -100,6 +141,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
+
+
                     <TextView
                         android:id="@+id/login_txt_username"
                         android:layout_width="wrap_content"
@@ -107,17 +150,37 @@
                         android:layout_gravity="center_vertical"
                         android:layout_margin="5dp"
                         android:gravity="end"
-                        android:textColor="@color/colorPrimaryLight"
+                        android:textColor="@color/colorPrimaryLightText"
                         android:text="@string/username" />
 
-                    <EditText
-                        android:id="@+id/login_edit_username"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:textColor="@color/colorPrimary"
-                        android:inputType="textNoSuggestions" />
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/login_edit_username"
+                            android:autofillHints="username"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minEms="10"
+                            android:inputType="textNoSuggestions"
+                            android:singleLine="true"
+                            android:textColor="@color/colorPrimaryText" />
+
+                        <TextView
+                            android:id="@+id/login_txt_error_username"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/login_edit_username"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="-8dp"
+                            android:text="Error"
+                            android:textSize="10sp"
+                            android:textColor="@color/colorError"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
+
                 </TableRow>
 
                 <TableRow
@@ -131,17 +194,37 @@
                         android:layout_gravity="center_vertical"
                         android:layout_margin="5dp"
                         android:gravity="end"
-                        android:textColor="@color/colorPrimaryLight"
-                        android:text="@string/password" />
+                        android:text="@string/password"
+                        android:textColor="@color/colorPrimaryLightText" />
 
-                    <EditText
-                        android:id="@+id/login_edit_password"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:textColor="@color/colorPrimary"
-                        android:inputType="textPassword" />
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/login_edit_password"
+                            android:autofillHints="password"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minEms="10"
+                            android:inputType="textPassword"
+                            android:singleLine="true"
+                            android:textColor="@color/colorPrimaryText" />
+
+                        <TextView
+                            android:id="@+id/login_txt_error_password"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/login_edit_password"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="-8dp"
+                            android:text="Error"
+                            android:textSize="10sp"
+                            android:textColor="@color/colorError"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
+
                 </TableRow>
 
                 <TableRow
@@ -157,17 +240,37 @@
                         android:layout_gravity="center_vertical"
                         android:layout_margin="5dp"
                         android:gravity="end"
-                        android:textColor="@color/colorPrimaryLight"
+                        android:textColor="@color/colorPrimaryLightText"
                         android:text="@string/confirm_password" />
 
-                    <EditText
-                        android:id="@+id/login_edit_confirm_password"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:textColor="@color/colorPrimary"
-                        android:inputType="textPassword" />
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/login_edit_confirm_password"
+                            android:autofillHints="password"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minEms="10"
+                            android:inputType="textPassword"
+                            android:singleLine="true"
+                            android:textColor="@color/colorPrimaryText" />
+
+                        <TextView
+                            android:id="@+id/login_txt_error_confirm_password"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/login_edit_confirm_password"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="-8dp"
+                            android:text="Error"
+                            android:textSize="10sp"
+                            android:textColor="@color/colorError"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
+
                 </TableRow>
 
                 <TableRow
@@ -183,17 +286,37 @@
                         android:layout_gravity="center_vertical"
                         android:layout_margin="5dp"
                         android:gravity="end"
-                        android:textColor="@color/colorPrimaryLight"
+                        android:textColor="@color/colorPrimaryLightText"
                         android:text="@string/first_name" />
 
-                    <EditText
-                        android:id="@+id/login_edit_first_name"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:textColor="@color/colorPrimary"
-                        android:inputType="textPersonName" />
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/login_edit_first_name"
+                            android:importantForAutofill="no"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minEms="10"
+                            android:inputType="textPersonName"
+                            android:singleLine="true"
+                            android:textColor="@color/colorPrimaryText" />
+
+                        <TextView
+                            android:id="@+id/login_txt_error_first_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/login_edit_first_name"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="-8dp"
+                            android:text="Error"
+                            android:textSize="10sp"
+                            android:textColor="@color/colorError"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
+
                 </TableRow>
 
                 <TableRow
@@ -209,24 +332,44 @@
                         android:layout_gravity="center_vertical"
                         android:layout_margin="5dp"
                         android:gravity="end"
-                        android:textColor="@color/colorPrimaryLight"
+                        android:textColor="@color/colorPrimaryLightText"
                         android:text="@string/last_name" />
 
-                    <EditText
-                        android:id="@+id/login_edit_last_name"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:textColor="@color/colorPrimary"
-                        android:inputType="textPersonName" />
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/login_edit_last_name"
+                            android:importantForAutofill="no"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minEms="10"
+                            android:inputType="textPersonName"
+                            android:singleLine="true"
+                            android:textColor="@color/colorPrimaryText" />
+
+                        <TextView
+                            android:id="@+id/login_txt_error_last_name"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/login_edit_last_name"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="-8dp"
+                            android:text="Error"
+                            android:textSize="10sp"
+                            android:textColor="@color/colorError"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
+
                 </TableRow>
 
                 <TableRow
                     android:id="@+id/login_row_email"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    tools:visibility="gone">
+                    android:visibility="gone">
 
                     <TextView
                         android:id="@+id/login_txt_email"
@@ -235,47 +378,86 @@
                         android:layout_gravity="center_vertical"
                         android:layout_margin="5dp"
                         android:gravity="end"
-                        android:textColor="@color/colorPrimaryLight"
+                        android:textColor="@color/colorPrimaryLightText"
                         android:text="@string/email" />
 
-                    <EditText
-                        android:id="@+id/login_edit_email"
+                    <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:ems="10"
-                        android:textColor="@color/colorPrimary"
-                        android:inputType="textEmailAddress" />
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/login_edit_email"
+                            android:importantForAutofill="no"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minEms="10"
+                            android:inputType="textEmailAddress"
+                            android:singleLine="true"
+                            android:textColor="@color/colorPrimaryText" />
+
+                        <TextView
+                            android:id="@+id/login_txt_error_email"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/login_edit_email"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="-8dp"
+                            android:text="Error"
+                            android:textSize="10sp"
+                            android:textColor="@color/colorError"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
+
                 </TableRow>
 
                 <TableRow
                     android:id="@+id/login_row_gender"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
+                    android:layout_height="wrap_content"
                     android:visibility="gone">
 
-                    <RadioGroup
-                        android:layout_width="wrap_content"
+                    <RelativeLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_weight="1"
+                        android:layout_span="2">
 
-                        <RadioButton
-                            android:id="@+id/login_radio_male"
+                        <RadioGroup
+                            android:id="@+id/login_radiogrp_gender"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@color/colorPrimaryLight"
-                            android:text="@string/male" />
+                            android:layout_centerHorizontal="true"
+                            android:orientation="horizontal">
 
-                        <RadioButton
-                            android:id="@+id/login_radio_female"
+                            <RadioButton
+                                android:id="@+id/login_radio_male"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorPrimaryLightText"
+                                android:text="@string/male" />
+
+                            <RadioButton
+                                android:id="@+id/login_radio_female"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/colorPrimaryLightText"
+                                android:text="@string/female" />
+                        </RadioGroup>
+
+                        <TextView
+                            android:id="@+id/login_txt_error_gender"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:textColor="@color/colorPrimaryLight"
-                            android:text="@string/female" />
-                    </RadioGroup>
+                            android:layout_below="@+id/login_radiogrp_gender"
+                            android:layout_centerHorizontal="true"
+                            android:layout_marginTop="-6dp"
+                            android:text="Error"
+                            android:textSize="10sp"
+                            android:textColor="@color/colorError"
+                            android:visibility="gone"/>
+                    </RelativeLayout>
+
                 </TableRow>
 
             </TableLayout>
@@ -294,7 +476,7 @@
                 android:layout_marginRight="5dp"
                 android:layout_marginBottom="25dp"
                 android:clickable="true"
-                android:textColor="@color/colorPrimaryLight"
+                android:textColor="@color/colorPrimaryLightText"
                 android:text="@string/not_registered" />
 
             <Button
@@ -302,7 +484,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorBackground"
-                android:background="@color/colorAccent"
+                android:background="@color/colorPrimary"
                 android:text="@string/login" />
 
             <Space

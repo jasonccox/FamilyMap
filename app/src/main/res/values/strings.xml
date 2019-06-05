@@ -16,4 +16,8 @@
     <string name="register">Register</string>
     <string name="not_registered">Not registered yet? Click here to sign up!</string>
     <string name="already_registered">Already registered? Click here to log in!</string>
+    <string name="must_not_be_blank">Must not be blank</string>
+    <string name="port_invalid">Invalid port number</string>
+    <string name="password_must_match">Passwords must match</string>
+    <string name="fix_invalid_fields">Please correct errors above</string>
 </resources>
