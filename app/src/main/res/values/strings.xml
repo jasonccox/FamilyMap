@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">FamilyMap</string>
+    <string name="server_address">Server Address</string>
+    <string name="protocol">http://</string>
+    <string name="host">hostname</string>
+    <string name="port">port</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="email">Email</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="not_registered">Not registered yet? Click here to sign up!</string>
+    <string name="already_registered">Already registered? Click here to log in!</string>
 </resources>
