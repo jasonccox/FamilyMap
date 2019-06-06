@@ -37,7 +37,8 @@ import com.jasoncarloscox.familymap.server.result.PersonsResult;
 import java.util.Collection;
 
 /**
- * A simple {@link Fragment} subclass.
+ * A fragment allowing users to login/register.
+ *
  * Use the {@link LoginFragment#newInstance} factory method to
  * create an instance of this fragment.
  */

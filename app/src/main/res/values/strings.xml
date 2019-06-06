@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FamilyMap</string>
+    <string name="app_name">Family Map</string>
     <string name="server_address">Server Address</string>
     <string name="protocol">http://</string>
     <string name="host">hostname</string>
