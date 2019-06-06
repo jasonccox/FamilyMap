@@ -18,9 +18,21 @@ public class Model {
         return instance;
     }
 
-    private FamilyTree tree;
+    private FamilyTree tree = new FamilyTree();
     private User user;
 
     private Model() {}
+
+    public FamilyTree getTree() {
+        return tree;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
 }

@@ -12,7 +12,6 @@ import com.jasoncarloscox.familymap.server.result.EventsResult;
 import com.jasoncarloscox.familymap.server.result.LoginResult;
 import com.jasoncarloscox.familymap.server.result.PersonsResult;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,10 +54,6 @@ public class ServerProxyTest {
         PowerMockito.mockStatic(Log.class);
     }
 
-    @After
-    public void cleanup() throws Exception {
-    }
-
     @Test
     public void loginReturnsAuthTokenAndPersonId() throws IOException {
         String mockResBody = "{\"authToken\":\"abc\", \"personID\":\"pid\"}";
@@ -82,6 +77,14 @@ public class ServerProxyTest {
 
         assertFalse(res.isSuccess());
         assertNotNull(res.getMessage());
+    }
+
+    @Test
+    public void loginReturnsLoginResultWhenConnectFails() throws IOException {
+        PowerMockito.doThrow(new IOException()).when(mockConn).connect();
+
+        LoginRequest req = new LoginRequest("uname", "password");
+        assertTrue(server.login(req) instanceof LoginResult);
     }
 
     @Test
@@ -116,6 +119,20 @@ public class ServerProxyTest {
     }
 
     @Test
+    public void registerReturnsLoginResultWhenConnectFails() throws IOException {
+        PowerMockito.doThrow(new IOException()).when(mockConn).connect();
+
+        User newUser = new User("uname", "password");
+        newUser.setFirstName("f");
+        newUser.setLastName("l");
+        newUser.setGender(Gender.MALE);
+        newUser.setEmail("e");
+
+        RegisterRequest req = new RegisterRequest(newUser);;
+        assertTrue(server.register(req) instanceof LoginResult);
+    }
+
+    @Test
     public void getPersonsReturnsPersons() throws IOException {
         String mockResBody = "{\"data\":[{\"personID\":\"p\"}]}";
         setMockResponse(HttpURLConnection.HTTP_OK, mockResBody);
@@ -140,6 +157,14 @@ public class ServerProxyTest {
     }
 
     @Test
+    public void getPersonsReturnsPersonsResultWhenConnectFails() throws IOException {
+        PowerMockito.doThrow(new IOException()).when(mockConn).connect();
+
+        PersonsRequest req = new PersonsRequest("token");
+        assertTrue(server.getPersons(req) instanceof PersonsResult);
+    }
+
+    @Test
     public void getEventsReturnsEvents() throws IOException {
         String mockResBody = "{\"data\":[{\"eventID\":\"eid\"}]}";
         setMockResponse(HttpURLConnection.HTTP_OK, mockResBody);
@@ -161,6 +186,14 @@ public class ServerProxyTest {
 
         assertFalse(res.isSuccess());
         assertNotNull(res.getMessage());
+    }
+
+    @Test
+    public void getEventsReturnsEventsResultWhenConnectFails() throws IOException {
+        PowerMockito.doThrow(new IOException()).when(mockConn).connect();
+
+        EventsRequest req = new EventsRequest("token");
+        assertTrue(server.getEvents(req) instanceof EventsResult);
     }
 
     private void setMockResponse(int code, String body) throws IOException {

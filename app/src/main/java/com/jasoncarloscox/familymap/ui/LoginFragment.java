@@ -2,11 +2,13 @@ package com.jasoncarloscox.familymap.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TableRow;
@@ -14,26 +16,66 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jasoncarloscox.familymap.R;
+import com.jasoncarloscox.familymap.model.Event;
+import com.jasoncarloscox.familymap.model.Gender;
+import com.jasoncarloscox.familymap.model.Model;
+import com.jasoncarloscox.familymap.model.Person;
+import com.jasoncarloscox.familymap.model.User;
+import com.jasoncarloscox.familymap.server.GetEventsTask;
+import com.jasoncarloscox.familymap.server.GetPersonsTask;
+import com.jasoncarloscox.familymap.server.LoginTask;
+import com.jasoncarloscox.familymap.server.RegisterTask;
+import com.jasoncarloscox.familymap.server.ServerProxy;
+import com.jasoncarloscox.familymap.server.request.EventsRequest;
+import com.jasoncarloscox.familymap.server.request.LoginRequest;
+import com.jasoncarloscox.familymap.server.request.PersonsRequest;
+import com.jasoncarloscox.familymap.server.request.RegisterRequest;
+import com.jasoncarloscox.familymap.server.result.EventsResult;
+import com.jasoncarloscox.familymap.server.result.LoginResult;
+import com.jasoncarloscox.familymap.server.result.PersonsResult;
+
+import java.util.Collection;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link LoginFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class LoginFragment extends Fragment {
+public class LoginFragment extends Fragment implements LoginTask.Context,
+        RegisterTask.Context, GetPersonsTask.Context, GetEventsTask.Context {
+
+    private static final String TAG = "LoginFragment";
 
     // keys for saving state on destroy/create
     private static final String KEY_HOST = "host";
     private static final String KEY_PORT = "port";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
-    private static final String KEY_CONFIRM_PASSWORD = "confirmpassword";
-    private static final String KEY_FIRST_NAME = "firstname";
-    private static final String KEY_LAST_NAME = "lastname";
+    private static final String KEY_CONFIRM_PASSWORD = "confirm_password";
+    private static final String KEY_FIRST_NAME = "first_name";
+    private static final String KEY_LAST_NAME = "last_name";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_MALE = "male";
     private static final String KEY_FEMALE = "female";
     private static final String KEY_REGISTER = "register";
+    private static final String KEY_VISIBILITY_ERROR_HOST = "visibility_error_host";
+    private static final String KEY_VISIBILITY_ERROR_PORT = "visibility_error_port";
+    private static final String KEY_VISIBILITY_ERROR_USERNAME = "visibility_error_username";
+    private static final String KEY_VISIBILITY_ERROR_PASSWORD = "visibility_error_password";
+    private static final String KEY_VISIBILITY_ERROR_CONFIRM_PASSWORD = "visibility_error_confirm_password";
+    private static final String KEY_VISIBILITY_ERROR_FIRST_NAME = "visibility_error_first_name";
+    private static final String KEY_VISIBILITY_ERROR_LAST_NAME = "visibility_error_last_name";
+    private static final String KEY_VISIBILITY_ERROR_EMAIL = "visibility_error_email";
+    private static final String KEY_VISIBILITY_ERROR_GENDER = "visibility_error_gender";
+    private static final String KEY_MSG_ERROR_HOST = "msg_error_host";
+    private static final String KEY_MSG_ERROR_PORT = "msg_error_port";
+    private static final String KEY_MSG_ERROR_USERNAME = "msg_error_username";
+    private static final String KEY_MSG_ERROR_PASSWORD = "msg_error_password";
+    private static final String KEY_MSG_ERROR_CONFIRM_PASSWORD = "msg_error_confirm_password";
+    private static final String KEY_MSG_ERROR_FIRST_NAME = "msg_error_first_name";
+    private static final String KEY_MSG_ERROR_LAST_NAME = "msg_error_last_name";
+    private static final String KEY_MSG_ERROR_EMAIL = "msg_error_email";
+    private static final String KEY_MSG_ERROR_GENDER = "msg_error_gender";
 
     // editable fields
     private EditText editHost;
@@ -69,9 +111,15 @@ public class LoginFragment extends Fragment {
     // other UI elements
     private TextView txtToggleRegister;
     private Button btnLogin;
+    private ProgressBar progressSpinner;
 
     /** Whether the user is logging in (false) or registering (true) */
     private boolean register = false;
+
+    private Model model = Model.instance();
+    private User user;
+    private Collection<Event> fetchedEvents;
+    private Collection<Person> fetchedPersons;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -97,7 +145,7 @@ public class LoginFragment extends Fragment {
 
         initComponents(view);
         restoreState(savedInstanceState);
-        toggleRegister(register);
+        setRegister(register);
 
         return view;
     }
@@ -114,14 +162,113 @@ public class LoginFragment extends Fragment {
         savedInstanceState.putString(KEY_EMAIL, editEmail.getText().toString());
         savedInstanceState.putBoolean(KEY_MALE, radioMale.hasSelection());
         savedInstanceState.putBoolean(KEY_FEMALE, radioFemale.hasSelection());
+        
         savedInstanceState.putBoolean(KEY_REGISTER, register);
+        
+        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_HOST, txtErrorHost.getVisibility());
+        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_PORT, txtErrorPort.getVisibility());
+        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_USERNAME, txtErrorUsername.getVisibility());
+        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_PASSWORD, txtErrorPassword.getVisibility());
+        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_CONFIRM_PASSWORD, txtErrorConfirmPassword.getVisibility());
+        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_FIRST_NAME, txtErrorFirstName.getVisibility());
+        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_LAST_NAME, txtErrorLastName.getVisibility());
+        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_EMAIL, txtErrorEmail.getVisibility());
+        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_GENDER, txtErrorGender.getVisibility());
+        
+        savedInstanceState.putString(KEY_MSG_ERROR_HOST, txtErrorHost.getText().toString());
+        savedInstanceState.putString(KEY_MSG_ERROR_PORT, txtErrorPort.getText().toString());
+        savedInstanceState.putString(KEY_MSG_ERROR_USERNAME, txtErrorUsername.getText().toString());
+        savedInstanceState.putString(KEY_MSG_ERROR_PASSWORD, txtErrorPassword.getText().toString());
+        savedInstanceState.putString(KEY_MSG_ERROR_CONFIRM_PASSWORD, txtErrorConfirmPassword.getText().toString());
+        savedInstanceState.putString(KEY_MSG_ERROR_FIRST_NAME, txtErrorFirstName.getText().toString());
+        savedInstanceState.putString(KEY_MSG_ERROR_LAST_NAME, txtErrorLastName.getText().toString());
+        savedInstanceState.putString(KEY_MSG_ERROR_EMAIL, txtErrorEmail.getText().toString());
+        savedInstanceState.putString(KEY_MSG_ERROR_GENDER, txtErrorGender.getText().toString());
+    }
 
-        // TODO: save and restore state of validation
+    /**
+     * Called when a GetEventsTask completes
+     *
+     * @param result the result of getting events
+     */
+    @Override
+    public void onGetEventsComplete(EventsResult result) {
+        if (result.isSuccess()) {
+            fetchedEvents = result.getEvents();
+
+            if (fetchedPersons != null) {
+                model.getTree().load(fetchedPersons, user.getPersonId(),
+                                     fetchedEvents);
+                showWelcome();
+            }
+        } else {
+            Log.e(TAG, "Failed to fetch events: " + result.getMessage());
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(),
+                                         R.string.events_request_failed,
+                                         Toast.LENGTH_LONG);
+            toast.show();
+        }
+
+        showProgressSpinner(false);
+    }
+
+    /**
+     * Called when a GetPersonsTask completes
+     *
+     * @param result the result of getting persons
+     */
+    @Override
+    public void onGetPersonsComplete(PersonsResult result) {
+        if (result.isSuccess()) {
+            fetchedPersons = result.getPersons();
+
+            if (fetchedEvents != null) {
+                model.getTree().load(fetchedPersons, user.getPersonId(),
+                        fetchedEvents);
+                showWelcome();
+            }
+        } else {
+            Log.e(TAG, "Failed to fetch persons: " + result.getMessage());
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(),
+                                         R.string.persons_request_failed,
+                                         Toast.LENGTH_LONG);
+            toast.show();
+        }
+
+        showProgressSpinner(false);
+    }
+
+    /**
+     * Called when a LoginTask completes
+     *
+     * @param result the result of logging in
+     */
+    @Override
+    public void onLoginComplete(LoginResult result) {
+        if (result.isSuccess()) {
+            handleLoginSuccess(result);
+        } else {
+            handleLoginFailure(result);
+        }
+    }
+
+    /**
+     * Called when a RegisterTask completes
+     *
+     * @param result the result of registering
+     */
+    @Override
+    public void onRegisterComplete(LoginResult result) {
+        if (result.isSuccess()) {
+            handleLoginSuccess(result);
+        } else {
+            handleRegisterFailure(result);
+        }
     }
 
     /**
      * Initializes all of the components that need to be accessed by grabbing
-     * them from the view.
+     * them from the view and adding necessary listeners.
      *
      * @param view the View containing all the components
      */
@@ -156,23 +303,19 @@ public class LoginFragment extends Fragment {
 
         txtToggleRegister = (TextView) view.findViewById(R.id.login_txt_toggle_register);
         btnLogin = (Button) view.findViewById(R.id.login_btn_login);
+        progressSpinner = (ProgressBar) view.findViewById(R.id.login_progress_spinner);
+
+        txtToggleRegister.setOnClickListener(new TextView.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setRegister(!register);
+            }
+        });
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean valid = validateFields();
-
-                if (!valid) {
-                    Toast toast = Toast.makeText(getActivity().getApplicationContext(),
-                                                 R.string.fix_invalid_fields,
-                                                 Toast.LENGTH_LONG);
-
-                    toast.show();
-
-                    return;
-                }
-
-                // TODO: log in or register!
+                onBtnClick();
             }
         });
 
@@ -287,50 +430,63 @@ public class LoginFragment extends Fragment {
         radioFemale.setSelected(savedInstanceState.getBoolean(KEY_FEMALE));
 
         register = savedInstanceState.getBoolean(KEY_REGISTER);
+
+        txtErrorHost.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_HOST));
+        txtErrorPort.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_PORT));
+        txtErrorUsername.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_USERNAME));
+        txtErrorPassword.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_PASSWORD));
+        txtErrorConfirmPassword.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_CONFIRM_PASSWORD));
+        txtErrorFirstName.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_FIRST_NAME));
+        txtErrorLastName.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_LAST_NAME));
+        txtErrorEmail.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_EMAIL));
+        txtErrorGender.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_GENDER));
+        
+        txtErrorHost.setText(savedInstanceState.getString(KEY_MSG_ERROR_HOST));
+        txtErrorPort.setText(savedInstanceState.getString(KEY_MSG_ERROR_PORT));
+        txtErrorUsername.setText(savedInstanceState.getString(KEY_MSG_ERROR_USERNAME));
+        txtErrorPassword.setText(savedInstanceState.getString(KEY_MSG_ERROR_PASSWORD));
+        txtErrorConfirmPassword.setText(savedInstanceState.getString(KEY_MSG_ERROR_CONFIRM_PASSWORD));
+        txtErrorFirstName.setText(savedInstanceState.getString(KEY_MSG_ERROR_FIRST_NAME));
+        txtErrorLastName.setText(savedInstanceState.getString(KEY_MSG_ERROR_LAST_NAME));
+        txtErrorEmail.setText(savedInstanceState.getString(KEY_MSG_ERROR_EMAIL));
+        txtErrorGender.setText(savedInstanceState.getString(KEY_MSG_ERROR_GENDER));
     }
 
     /**
-     * Adjusts the UI based on whether the user is logging in or registering
+     * Adjusts the UI based on whether the user is logging in or registering,
+     * and sets the instance variable register.
      *
      * @param register whether the user is logging in (false) or registering (true)
      */
-    private void toggleRegister(boolean register) {
+    private void setRegister(boolean register) {
         int visibility = register ? View.VISIBLE : View.GONE;
 
+        // show or hide register fields
         rowConfirmPassword.setVisibility(visibility);
         rowFirstName.setVisibility(visibility);
         rowLastName.setVisibility(visibility);
         rowEmail.setVisibility(visibility);
         rowGender.setVisibility(visibility);
 
+        // modify button text and text allowing user to toggle login/register
         if (register) {
             txtToggleRegister.setText(R.string.already_registered);
             btnLogin.setText(R.string.register);
-
-            txtToggleRegister.setOnClickListener(new TextView.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    toggleRegister(false);
-                }
-            });
-
         } else {
             txtToggleRegister.setText(R.string.not_registered);
             btnLogin.setText(R.string.login);
-
-            txtToggleRegister.setOnClickListener(new TextView.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    toggleRegister(true);
-                }
-            });
         }
 
-        // TODO: add login button click listener
-
+        // let the fragment know if it is in register mode or not
         this.register = register;
     }
 
+    /**
+     * Checks if all of the field entries are valid, showing error messages
+     * when needed.
+     *
+     * @return whether all of the field entries are valid
+     */
     private boolean validateFields() {
         boolean valid = true;
 
@@ -379,6 +535,11 @@ public class LoginFragment extends Fragment {
         return valid;
     }
 
+    /**
+     * Checks if the host entry is valid, showing an error message if needed.
+     *
+     * @return whether the host entry is valid
+     */
     private boolean validateHost() {
         String contents = editHost.getText().toString();
 
@@ -392,6 +553,11 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Checks if the port entry is valid, showing an error message if needed.
+     *
+     * @return whether the port entry is valid
+     */
     private boolean validatePort() {
         String contents = editPort.getText().toString();
 
@@ -413,6 +579,11 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Checks if the username entry is valid, showing an error message if needed.
+     *
+     * @return whether the username entry is valid
+     */
     private boolean validateUsername() {
         String contents = editUsername.getText().toString();
 
@@ -426,6 +597,11 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Checks if the password entry is valid, showing an error message if needed.
+     *
+     * @return whether the password entry is valid
+     */
     private boolean validatePassword() {
         String contents = editPassword.getText().toString();
 
@@ -447,6 +623,12 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Checks if the confirm password entry is valid, showing an error message
+     * if needed.
+     *
+     * @return whether the confirm password entry is valid
+     */
     private boolean validateConfirmPassword() {
         String contents = editConfirmPassword.getText().toString();
 
@@ -466,6 +648,12 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Checks if the first name entry is valid, showing an error message if
+     * needed.
+     *
+     * @return whether the first name entry is valid
+     */
     private boolean validateFirstName() {
         String contents = editFirstName.getText().toString();
 
@@ -479,6 +667,12 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Checks if the last name entry is valid, showing an error message if
+     * needed.
+     *
+     * @return whether the last name entry is valid
+     */
     private boolean validateLastName() {
         String contents = editLastName.getText().toString();
 
@@ -492,6 +686,11 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Checks if the email entry is valid, showing an error message if needed.
+     *
+     * @return whether the email entry is valid
+     */
     private boolean validateEmail() {
         String contents = editEmail.getText().toString();
 
@@ -507,6 +706,11 @@ public class LoginFragment extends Fragment {
         return true;
     }
 
+    /**
+     * Checks if the gender entry is valid, showing an error message if needed.
+     *
+     * @return whether the gender entry is valid
+     */
     private boolean validateGender() {
         if (radioGrpGender.getCheckedRadioButtonId() == -1) {
             txtErrorGender.setText(R.string.must_not_be_blank);
@@ -516,5 +720,172 @@ public class LoginFragment extends Fragment {
 
         txtErrorGender.setVisibility(View.GONE);
         return true;
+    }
+
+    /**
+     * Called when the login/register button is clicked.
+     */
+    private void onBtnClick() {
+        showProgressSpinner(true);
+
+        boolean allFieldsValid = validateFields();
+
+        if (!allFieldsValid) {
+            Toast toast = Toast.makeText(getActivity().getApplicationContext(),
+                    R.string.fix_invalid_fields,
+                    Toast.LENGTH_LONG);
+
+            toast.show();
+
+            showProgressSpinner(false);
+
+            return;
+        }
+
+        initServer();
+
+        user = generateUser();
+
+        if (register) {
+            Log.i(TAG, "Starting RegisterTask");
+            new RegisterTask(this).execute(new RegisterRequest(user));
+        } else {
+            Log.i(TAG, "Starting LoginTask");
+            new LoginTask(this).execute(new LoginRequest(user.getUsername(),
+                                                         user.getPassword()));
+        }
+    }
+
+    /**
+     * Sets the server host and port.
+     */
+    private void initServer() {
+        ServerProxy.setHost(editHost.getText().toString());
+        ServerProxy.setPort(Integer.parseInt(editPort.getText().toString()));
+    }
+
+    /**
+     * Generates a user based on the entry fields
+     *
+     * @return the generated user
+     */
+    private User generateUser() {
+        User u = new User(editUsername.getText().toString(),
+                          editPassword.getText().toString());
+
+        // don't set the register fields if user isn't registering
+
+        if (!register) {
+            return u;
+        }
+
+        u.setFirstName(editFirstName.getText().toString());
+        u.setLastName(editLastName.getText().toString());
+        u.setEmail(editEmail.getText().toString());
+
+        if (radioGrpGender.getCheckedRadioButtonId() == radioMale.getId()) {
+            u.setGender(Gender.MALE);
+        } else {
+            // we can safely assume gender was selected because of validation
+            u.setGender(Gender.FEMALE);
+        }
+
+        return u;
+    }
+
+    /**
+     * Processes a successful login result
+     *
+     * @param result the successful result
+     */
+    private void handleLoginSuccess(LoginResult result) {
+        user.setPersonId(result.getPersonID());
+        model.setUser(user);
+
+        Log.i(TAG, "Starting GetPersonsTask");
+        new GetPersonsTask(this).execute(new PersonsRequest(result.getAuthToken()));
+
+        Log.i(TAG, "Starting GetEventsTask");
+        new GetEventsTask(this).execute(new EventsRequest(result.getAuthToken()));
+    }
+
+    /**
+     * Processes a failed login result
+     *
+     * @param result the failed result
+     */
+    private void handleLoginFailure(LoginResult result) {
+        int toastMessageId;
+
+        if (result.getMessage().startsWith(LoginResult.USER_NOT_FOUND)){
+            toastMessageId = R.string.user_not_found;
+        } else if (result.getMessage().startsWith(LoginResult.WRONG_PASSWORD_ERROR)) {
+            toastMessageId = R.string.wrong_password;
+        } else {
+            toastMessageId = R.string.generic_request_failed;
+            Log.e(TAG, "Failed to login: " + result.getMessage());
+        }
+
+        Toast toast = Toast.makeText(getActivity().getApplicationContext(),
+                                     toastMessageId,
+                                     Toast.LENGTH_LONG);
+        toast.show();
+
+        showProgressSpinner(false);
+    }
+
+    /**
+     * Processes a failed register result
+     *
+     * @param result the failed result
+     */
+    private void handleRegisterFailure(LoginResult result) {
+        int toastMessageId;
+
+        // unfortunately the server doesn't give back a nice predictable prefix
+        // on the error message if the username is taken, so more complex
+        // matching is needed
+        if (result.getMessage().matches("(.*)The username(.*)is already in use(.*)")){
+            toastMessageId = R.string.username_taken;
+        } else {
+            toastMessageId = R.string.generic_request_failed;
+            Log.e(TAG, "Failed to login: " + result.getMessage());
+        }
+
+        Toast toast = Toast.makeText(getActivity().getApplicationContext(),
+                                     toastMessageId,
+                                     Toast.LENGTH_LONG);
+        toast.show();
+
+        showProgressSpinner(false);
+    }
+
+    /**
+     * Shows a welcome message to the logged in user
+     */
+    private void showWelcome() {
+        Person userPerson = model.getTree().getPerson(user.getPersonId());
+
+        String msg = getString(R.string.welcome) + " " + userPerson.getFirstName() +
+                     " " + userPerson.getLastName();
+
+        Toast toast = Toast.makeText(getActivity().getApplicationContext(), msg,
+                                     Toast.LENGTH_LONG);
+        toast.show();
+    }
+
+    /**
+     * Shows or hides the progress spinner
+     *
+     * @param show whether to show the spinner
+     */
+    private void showProgressSpinner(boolean show) {
+        if (show) {
+            btnLogin.setVisibility(View.GONE);
+            progressSpinner.setVisibility(View.VISIBLE);
+        } else {
+            btnLogin.setVisibility(View.VISIBLE);
+            progressSpinner.setVisibility(View.GONE);
+        }
     }
 }

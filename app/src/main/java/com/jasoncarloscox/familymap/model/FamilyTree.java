@@ -24,26 +24,20 @@ public class FamilyTree {
 
     private Set<String> eventTypes = new HashSet<>();
     
-    private FamilyTree() {}
+    public FamilyTree() {}
 
     /**
      * Loads persons into the family tree and sets the root person.
      *
      * @param persons the persons to load
-     * @param rootPerson the root person - this person must also be included in
-     *                   persons
+     * @param rootPersonId the id of the root person - this person must be
+     *                     included in persons
      * @param events the events to load - each must belong to a person in persons
      */
-    public void load(Collection<Person> persons, Person rootPerson,
+    public void load(Collection<Person> persons, String rootPersonId,
                      Collection<Event> events) {
 
-        if (!persons.contains(rootPerson)) {
-            throw new IllegalArgumentException("rootPerson must be in persons");
-        }
-
-        this.rootPerson = rootPerson;
-
-        loadPersons(persons);
+        loadPersons(persons, rootPersonId);
 
         loadEvents(events);
 
@@ -151,10 +145,17 @@ public class FamilyTree {
         }
     }
 
-    private void loadPersons(Collection<Person> persons) {
+    private void loadPersons(Collection<Person> persons, String rootPersonId) {
         for (Person p : persons) {
             personsById.put(p.getId(), p);
         }
+
+        if (!personsById.containsKey(rootPersonId)) {
+            throw new IllegalArgumentException("rootPersonId must be the id of " +
+                                               "one of the persons");
+        }
+
+        rootPerson = personsById.get(rootPersonId);
 
         paternalSidePersons = paternalSidePersons();
         maternalSidePersons = maternalSidePersons();

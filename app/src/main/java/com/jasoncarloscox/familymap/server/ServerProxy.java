@@ -116,6 +116,8 @@ public class ServerProxy {
                 http.setDoOutput(false);
             }
 
+            Log.i(TAG, "Connecting to " + url.toString());
+
             http.connect();
 
             if (request.sendBody()) {
@@ -139,8 +141,18 @@ public class ServerProxy {
 
         } catch (IOException e) {
             Log.e(TAG, "Failed to make request: " + request.getClass().getSimpleName(), e);
-            return new ApiResult(false, "Error connecting to server. " +
-                                        "Please try again later.");
+
+            String msg = "Error connecting to server. Please try again later.";
+
+            if (LoginResult.class.equals(resultClass)) {
+                return new LoginResult(msg);
+            } else if (PersonsResult.class.equals(resultClass)) {
+                return new PersonsResult(msg);
+            } else if (EventsResult.class.equals(resultClass)) {
+                return new EventsResult(msg);
+            } else {
+                return new ApiResult(false, msg);
+            }
         }
     }
 

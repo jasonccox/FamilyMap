@@ -20,4 +20,11 @@
     <string name="port_invalid">Invalid port number</string>
     <string name="password_must_match">Passwords must match</string>
     <string name="fix_invalid_fields">Please correct errors above</string>
+    <string name="persons_request_failed">Sorry, your family\'s persons could not be retrieved. Please try again later.</string>
+    <string name="events_request_failed">Sorry, your family\'s events could not be retrieved. Please try again later.</string>
+    <string name="generic_request_failed">Sorry, your request could not be completed. Please try again later.</string>
+    <string name="user_not_found">No user found with that username</string>
+    <string name="wrong_password">Incorrect password</string>
+    <string name="username_taken">That username has already been taken. Please choose a new one.</string>
+    <string name="welcome">Welcome</string>
 </resources>
