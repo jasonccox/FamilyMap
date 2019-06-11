@@ -47,8 +47,9 @@ public class PersonResult extends ApiResult {
         p.setFirstName(firstName);
         p.setLastName(lastName);
         p.setGender(gender);
-        p.setFather(father);
-        p.setSpouse(spouse);
+        p.setFatherID(father);
+        p.setMotherID(mother);
+        p.setSpouseID(spouse);
 
         return p;
     }

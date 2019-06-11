@@ -45,6 +45,15 @@ import java.util.Collection;
 public class LoginFragment extends Fragment implements LoginTask.Context,
         RegisterTask.Context, GetPersonsTask.Context, GetEventsTask.Context {
 
+    public interface Listener {
+
+        /**
+         * Called when the user has been logged in and this fragment can be
+         * removed.
+         */
+        void onLoginComplete();
+    }
+
     private static final String TAG = "LoginFragment";
 
     // keys for saving state on destroy/create
@@ -122,6 +131,11 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     private Collection<Event> fetchedEvents;
     private Collection<Person> fetchedPersons;
 
+    private Listener listener;
+
+    private boolean fetchPersonsComplete = false;
+    private boolean fetchEventsComplete = false;
+
     public LoginFragment() {
         // Required empty public constructor
     }
@@ -131,6 +145,10 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
      */
     public static LoginFragment newInstance() {
         return new LoginFragment();
+    }
+
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -196,12 +214,6 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     public void onGetEventsComplete(EventsResult result) {
         if (result.isSuccess()) {
             fetchedEvents = result.getEvents();
-
-            if (fetchedPersons != null) {
-                model.getTree().load(fetchedPersons, user.getPersonId(),
-                                     fetchedEvents);
-                showWelcome();
-            }
         } else {
             Log.e(TAG, "Failed to fetch events: " + result.getMessage());
             Toast toast = Toast.makeText(getActivity().getApplicationContext(),
@@ -210,7 +222,13 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
             toast.show();
         }
 
-        showProgressSpinner(false);
+        fetchEventsComplete = true;
+
+        if (fetchPersonsComplete) {
+            model.load(fetchedPersons, user.getPersonId(), fetchedEvents);
+            showProgressSpinner(false);
+            listener.onLoginComplete();
+        }
     }
 
     /**
@@ -222,12 +240,6 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     public void onGetPersonsComplete(PersonsResult result) {
         if (result.isSuccess()) {
             fetchedPersons = result.getPersons();
-
-            if (fetchedEvents != null) {
-                model.getTree().load(fetchedPersons, user.getPersonId(),
-                        fetchedEvents);
-                showWelcome();
-            }
         } else {
             Log.e(TAG, "Failed to fetch persons: " + result.getMessage());
             Toast toast = Toast.makeText(getActivity().getApplicationContext(),
@@ -236,7 +248,13 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
             toast.show();
         }
 
-        showProgressSpinner(false);
+        fetchPersonsComplete = true;
+
+        if (fetchEventsComplete) {
+            model.load(fetchedPersons, user.getPersonId(), fetchedEvents);
+            showProgressSpinner(false);
+            listener.onLoginComplete();
+        }
     }
 
     /**
@@ -489,6 +507,9 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
      * @return whether all of the field entries are valid
      */
     private boolean validateFields() {
+
+        // TODO: disable button when not valid
+
         boolean valid = true;
 
         if (!validateHost()) {
@@ -859,20 +880,6 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         toast.show();
 
         showProgressSpinner(false);
-    }
-
-    /**
-     * Shows a welcome message to the logged in user
-     */
-    private void showWelcome() {
-        Person userPerson = model.getTree().getPerson(user.getPersonId());
-
-        String msg = getString(R.string.welcome) + " " + userPerson.getFirstName() +
-                     " " + userPerson.getLastName();
-
-        Toast toast = Toast.makeText(getActivity().getApplicationContext(), msg,
-                                     Toast.LENGTH_LONG);
-        toast.show();
     }
 
     /**

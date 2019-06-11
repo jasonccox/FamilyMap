@@ -34,11 +34,11 @@ public class FamilyTree {
     protected void load(Collection<Person> persons, String rootPersonId,
                      Collection<Event> events) {
 
-        if (!persons.isEmpty()) {
+        if (persons != null && !persons.isEmpty()) {
             loadPersons(persons, rootPersonId);
         }
 
-        if (!events.isEmpty()) {
+        if (events != null && !events.isEmpty()) {
             loadEvents(events);
         }
     }
