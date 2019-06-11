@@ -13,11 +13,21 @@ public class Person {
     private String firstName;
     private String lastName;
     private String gender;
-    private String father;
-    private String mother;
-    private String spouse;
+    private String fatherID;
+    private String motherID;
+    private String spouseID;
     private LinkedList<Event> events = new LinkedList<>();
     private LinkedList<Person> children = new LinkedList<>();
+    private boolean isPaternalSide;
+    private boolean isMaternalSide;
+    private Person father;
+    private Person mother;
+    private Person spouse;
+
+    // TODO: getEvents returns events in chronological order
+    // TODO: refactor getFirstEvent to take in a filter and get the first
+    //  non-filtered event (and test)
+
 
     /**
      * Creates a new Person.
@@ -35,11 +45,12 @@ public class Person {
      */
     public void addEvent(Event event) {
         int i = 0;
-        while (i < events.size() && event.getYear() < events.get(i).getYear()) {
+        while (i < events.size() && event.getYear() > events.get(i).getYear()) {
             i++;
         }
 
         events.add(i, event);
+        event.setPerson(this);
     }
 
     /**
@@ -50,33 +61,19 @@ public class Person {
     }
 
     /**
-     * Gets all of this person's events of the specified types.
-     *
-     * @param types the types of events to get
-     * @return the events of the specified types
+     * @param filter a filter describing which events to show, or null to
+     *               indicate that all events should be shown
+     * @return this person's chronologically first event that matches the filter,
+     *         or null if this person has no events matching the filter
      */
-    public List<Event> getEvents(Set<String> types) {
-        LinkedList<Event> matchingEvents = new LinkedList<>();
-
-        for (Event e : events) {
-            if (types.contains(e.getType())) {
-                matchingEvents.add(e);
+    public Event getFirstEvent(EventFilter filter) {
+        for (int i = 0; i < events.size(); i++) {
+            if (filter == null || filter.showEvent(events.get(i))) {
+                return events.get(i);
             }
         }
 
-        return matchingEvents;
-    }
-
-    /**
-     * @return this person's chronologically first event, or null if this person
-     *         has no events
-     */
-    public Event getFirstEvent() {
-        if (events.isEmpty()) {
-            return null;
-        }
-
-        return events.getFirst();
+        return null;
     }
 
     /**
@@ -84,10 +81,10 @@ public class Person {
      *
      * @param child the child to be added
      */
-    public void addChild(Person child) {
+    private void addChild(Person child) {
         int i = 0;
-        while (i < children.size() && child.getFirstEvent().getYear() <
-                                      children.get(i).getFirstEvent().getYear()) {
+        while (i < children.size() && child.getFirstEvent(null).getYear() >
+                                      children.get(i).getFirstEvent(null).getYear()) {
             i++;
         }
 
@@ -152,45 +149,102 @@ public class Person {
     }
 
     /**
-     * @return the Pid of the person representing this person's father
+     * @return the Pid of the person representing this person's fatherID
      */
-    public String getFather() {
+    public String getFatherID() {
+        return fatherID;
+    }
+
+    /**
+     * @param fatherID the id of the person representing this person's fatherID
+     */
+    public void setFatherID(String fatherID) {
+        this.fatherID = fatherID;
+    }
+
+    /**
+     * @return the id of the person representing this person's motherID
+     */
+    public String getMotherID() {
+        return motherID;
+    }
+
+    /**
+     * @param motherID the id of the person representing this person's motherID
+     */
+    public void setMotherID(String motherID) {
+        this.motherID = motherID;
+    }
+
+    /**
+     * @return the id of the person representing this person's spouseID
+     */
+    public String getSpouseID() {
+        return spouseID;
+    }
+
+    /**
+     * @param spouseID the id of the person representing this person's spouseID
+     */
+    public void setSpouseID(String spouseID) {
+        this.spouseID = spouseID;
+    }
+
+    public boolean isPaternalSide() {
+        return isPaternalSide;
+    }
+
+    public void setPaternalSide(boolean paternalSide) {
+        isPaternalSide = paternalSide;
+    }
+
+    public boolean isMaternalSide() {
+        return isMaternalSide;
+    }
+
+    public void setMaternalSide(boolean maternalSide) {
+        isMaternalSide = maternalSide;
+    }
+
+    public Person getFather() {
         return father;
     }
 
-    /**
-     * @param father the id of the person representing this person's father
-     */
-    public void setFather(String father) {
+    public void setFather(Person father) {
         this.father = father;
+        if (father != null) {
+            this.fatherID = father.getId();
+            father.addChild(this);
+        } else {
+            this.fatherID = null;
+        }
     }
 
-    /**
-     * @return the id of the person representing this person's mother
-     */
-    public String getMother() {
+    public Person getMother() {
         return mother;
     }
 
-    /**
-     * @param mother the id of the person representing this person's mother
-     */
-    public void setMother(String mother) {
+    public void setMother(Person mother) {
         this.mother = mother;
+        if (mother != null) {
+            this.motherID = mother.getId();
+            mother.addChild(this);
+        } else {
+            this.motherID = null;
+        }
     }
 
-    /**
-     * @return the id of the person representing this person's spouse
-     */
-    public String getSpouse() {
+    public Person getSpouse() {
         return spouse;
     }
 
-    /**
-     * @param spouse the id of the person representing this person's spouse
-     */
-    public void setSpouse(String spouse) {
+    public void setSpouse(Person spouse) {
         this.spouse = spouse;
+        if (spouse != null) {
+            this.spouseID = spouse.getId();
+        } else {
+            this.spouseID = null;
+        }
     }
 
     @Override

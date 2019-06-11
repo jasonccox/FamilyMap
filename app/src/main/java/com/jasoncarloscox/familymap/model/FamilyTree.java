@@ -1,11 +1,8 @@
 package com.jasoncarloscox.familymap.model;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,31 +14,33 @@ public class FamilyTree {
     private Map<String, Person> personsById = new HashMap<>();
     private Map<String, Event> eventsById = new HashMap<>();
 
-    private Set<Person> paternalSidePersons = new HashSet<>();
-    private Set<Person> maternalSidePersons= new HashSet<>();
-
     private Person rootPerson;
 
     private Set<String> eventTypes = new HashSet<>();
     
-    public FamilyTree() {}
+    protected FamilyTree() {}
 
     /**
-     * Loads persons into the family tree and sets the root person.
+     * Loads persons and events into the family tree. This includes setting each
+     * person's father, mother, and children and whether the person is on the
+     * maternal or paternal side of the rootPerson's tree. It also includes
+     * attaching each event to its person
      *
      * @param persons the persons to load
      * @param rootPersonId the id of the root person - this person must be
      *                     included in persons
      * @param events the events to load - each must belong to a person in persons
      */
-    public void load(Collection<Person> persons, String rootPersonId,
+    protected void load(Collection<Person> persons, String rootPersonId,
                      Collection<Event> events) {
 
-        loadPersons(persons, rootPersonId);
+        if (!persons.isEmpty()) {
+            loadPersons(persons, rootPersonId);
+        }
 
-        loadEvents(events);
-
-        setupChildren();
+        if (!events.isEmpty()) {
+            loadEvents(events);
+        }
     }
 
     /**
@@ -50,7 +49,7 @@ public class FamilyTree {
      * @param id the id of the person to get
      * @return the person with the given id, or null if there is no such person
      */
-    public Person getPerson(String id) {
+    protected Person getPerson(String id) {
         return personsById.get(id);
     }
 
@@ -60,91 +59,33 @@ public class FamilyTree {
      * @param id the id of the event to get
      * @return the event with the given id, or null if there is no such event
      */
-    public Event getEvent(String id) {
+    protected Event getEvent(String id) {
         return eventsById.get(id);
     }
 
     /**
-     * @return the ancestors on the root person's paternal side, including the
-     *         root person
+     * @return all the events in this tree
      */
-    public Set<Person> getPaternalSidePersons() {
-        return paternalSidePersons;
-    }
-
-    /**
-     * @return the ancestors on the root person's maternal side, including the
-     *         root person
-     */
-    public Set<Person> getMaternalSidePersons() {
-        return maternalSidePersons;
+    protected Collection<Event> getEvents() {
+        return eventsById.values();
     }
 
     /**
      * @return the types of events in the family tree
      */
-    public Set<String> getEventTypes() {
+    protected Set<String> getEventTypes() {
         return eventTypes;
     }
 
-    private Set<Person> paternalSidePersons() {
-        Set<Person> persons = new HashSet<>();
-
-        persons.add(rootPerson);
-
-        if (rootPerson.getFather() != null) {
-            persons.add(personsById.get(rootPerson.getFather()));
-            persons.addAll(ancestors(personsById.get(rootPerson.getFather())));
-        }
-
-        return persons;
-    }
-
-    private Set<Person> maternalSidePersons() {
-        Set<Person> persons = new HashSet<>();
-
-        persons.add(rootPerson);
-
-        if (rootPerson.getMother() != null) {
-            persons.add(personsById.get(rootPerson.getMother()));
-            persons.addAll(ancestors(personsById.get(rootPerson.getMother())));
-        }
-
-        return persons;
-    }
-
-    private Set<Person> ancestors(Person root) {
-        Set<Person> ancestors = new HashSet<>();
-
-        if (root == null) {
-            return ancestors;
-        }
-
-        if (root.getFather() != null) {
-            ancestors.add(personsById.get(root.getFather()));
-            ancestors.addAll(ancestors(personsById.get(root.getFather())));
-        }
-
-        if (root.getMother() != null) {
-            ancestors.add(personsById.get(root.getMother()));
-            ancestors.addAll(ancestors(personsById.get(root.getMother())));
-        }
-
-        return ancestors;
-    }
-
-    private void setupChildren() {
-        for (Person p : personsById.values()) {
-            if (p.getFather() != null) {
-                personsById.get(p.getFather()).addChild(p);
-            }
-
-            if (p.getMother() != null) {
-                personsById.get(p.getMother()).addChild(p);
-            }
-        }
-    }
-
+    /**
+     * Loads persons into the family tree, including setting each person's
+     * father, mother, and children and whether the person is on the maternal
+     * or paternal side of the rootPerson's tree.
+     *
+     * @param persons the persons to be loaded
+     * @param rootPersonId the id of the root person - this must be one of the
+     *                     persons in persons
+     */
     private void loadPersons(Collection<Person> persons, String rootPersonId) {
         for (Person p : persons) {
             personsById.put(p.getId(), p);
@@ -152,21 +93,72 @@ public class FamilyTree {
 
         if (!personsById.containsKey(rootPersonId)) {
             throw new IllegalArgumentException("rootPersonId must be the id of " +
-                                               "one of the persons");
+                    "one of the persons");
         }
 
         rootPerson = personsById.get(rootPersonId);
 
-        paternalSidePersons = paternalSidePersons();
-        maternalSidePersons = maternalSidePersons();
+        setupTree();
     }
 
+    /**
+     * Sets each person's father, mother, and children and whether the person is
+     * on the maternal or paternal side of the rootPerson's tree.
+     */
+    private void setupTree() {
+        rootPerson.setPaternalSide(true);
+        rootPerson.setMaternalSide(true);
+
+        rootPerson.setFather(personsById.get(rootPerson.getFatherID()));
+        rootPerson.setMother(personsById.get(rootPerson.getMotherID()));
+        rootPerson.setSpouse(personsById.get(rootPerson.getSpouseID()));
+
+        setupAncestors(rootPerson.getFather(), true, false);
+        setupAncestors(rootPerson.getMother(), false, true);
+    }
+
+    /**
+     * Recursive method that sets the father, mother, and children of the root
+     * and each of its ancestors. This method also sets whether each of these
+     * persons is on the paternal or maternal side of the rootPerson's (not the
+     * root's) family.
+     *
+     * @param root the person whose ancestors should be setup
+     * @param paternal whether root is on the paternal side of the rootPerson's
+     *                 family
+     * @param maternal whether root is on the maternal side of the rootPerson's
+     *                 family
+     */
+    private void setupAncestors(Person root, boolean paternal, boolean maternal) {
+        if (root == null) {
+            return;
+        }
+
+        root.setPaternalSide(paternal);
+        root.setMaternalSide(maternal);
+
+        root.setFather(personsById.get(root.getFatherID()));
+        root.setMother(personsById.get(root.getMotherID()));
+        root.setSpouse(personsById.get(root.getSpouseID()));
+
+        setupAncestors(root.getFather(), paternal, maternal);
+        setupAncestors(root.getMother(), paternal, maternal);
+    }
+
+    /**
+     * Attaches the events to the person's to whom they belong.
+     *
+     * @param events the events to be attached
+     */
     private void loadEvents(Collection<Event> events) {
         for (Event e : events) {
             eventsById.put(e.getId(), e);
             eventTypes.add(e.getType());
 
-            personsById.get(e.getPersonId()).addEvent(e);
+            Person eventPerson = personsById.get(e.getPersonId());
+            if (eventPerson != null) {
+                eventPerson.addEvent(e);
+            }
         }
     }
 

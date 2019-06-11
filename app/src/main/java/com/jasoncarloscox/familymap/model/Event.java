@@ -7,6 +7,7 @@ public class Event {
 
     private final String eventID;
     private String personID;
+    private Person person;
     private float latitude;
     private float longitude;
     private String country;
@@ -35,6 +36,21 @@ public class Event {
      */
     public String getPersonId() {
         return personID;
+    }
+
+    /**
+     * @param person the person in whose life this event occurred
+     */
+    public void setPerson(Person person) {
+        this.person = person;
+        this.personID = person.getId();
+    }
+
+    /**
+     * @return the person in whose life this event occurred
+     */
+    public Person getPerson() {
+        return person;
     }
 
     /**
