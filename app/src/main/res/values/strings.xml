@@ -30,7 +30,7 @@
     <string name="username_taken">That username has already been taken. Please choose a new one.</string>
     <string name="welcome">Welcome %s %s</string>
     <string name="title_activity_maps">Map</string>
-    <string name="click_to_view_event">Click an event marker to see its details</string>
+    <string name="click_marker_to_view_event">Click an event marker to see its details. Then click the popup window to see more info about the person.</string>
     <string name="text_divider_horizontal">|</string>
     <string name="full_name">%s %s</string>
     <string name="location">%s, %s</string>

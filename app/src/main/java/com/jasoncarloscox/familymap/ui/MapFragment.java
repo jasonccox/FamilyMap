@@ -19,18 +19,16 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Event;
 import com.jasoncarloscox.familymap.model.Gender;
 import com.jasoncarloscox.familymap.model.Model;
-import com.jasoncarloscox.familymap.model.Person;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A fragment displaying a map of events.
@@ -48,17 +46,12 @@ public class MapFragment extends Fragment
     private static final int EVENT_ICON_SIZE_DP = 30;
 
     private GoogleMap map;
-    private View viewEventInfo;
-    private View viewEventInfoPlaceholder;
+    private TextView txtInstructions;
     private ImageView imgEventIcon;
-    private TextView txtEventPerson;
-    private TextView txtEventType;
-    private TextView txtEventDate;
-    private TextView txtEventLocation;
 
     private Event selectedEvent;
     private Model model = Model.instance();
-    private Map<Marker, Event> eventsByMarker = new HashMap<>();
+    private BiMap<Marker, Event> eventsMarkersMap = HashBiMap.create();
 
     public MapFragment() {
         // Required empty public constructor
@@ -126,7 +119,7 @@ public class MapFragment extends Fragment
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        setSelectedEvent(eventsByMarker.get(marker));
+        setSelectedEvent(eventsMarkersMap.get(marker));
 
         return false;
     }
@@ -143,13 +136,10 @@ public class MapFragment extends Fragment
      * @param view the View containing all the components
      */
     private void initComponents(View view) {
-        viewEventInfo = view.findViewById(R.id.map_event_info);
-        viewEventInfoPlaceholder = view.findViewById(R.id.map_event_info_placeholder);
+        txtInstructions = (TextView) view.findViewById(R.id.map_txt_instructions);
         imgEventIcon = (ImageView) view.findViewById(R.id.map_event_icon);
-        txtEventPerson = (TextView) view.findViewById(R.id.map_event_person);
-        txtEventType = (TextView) view.findViewById(R.id.map_event_type);
-        txtEventDate = (TextView) view.findViewById(R.id.map_event_date);
-        txtEventLocation = (TextView) view.findViewById(R.id.map_event_location);
+
+        imgEventIcon.setImageDrawable(generateMarkerIcon());
 
         SupportMapFragment mapFragment = (SupportMapFragment)
                 getChildFragmentManager().findFragmentById(R.id.map_map);
@@ -188,41 +178,16 @@ public class MapFragment extends Fragment
                                 .position(ll)
                                 .title(title)
                                 .snippet(snippet));
-        eventsByMarker.put(marker, event);
+        eventsMarkersMap.put(marker, event);
     }
 
     private void setSelectedEvent(Event event) {
         selectedEvent = event;
 
         if (selectedEvent != null) {
-            viewEventInfo.setVisibility(View.VISIBLE);
-            viewEventInfoPlaceholder.setVisibility(View.GONE);
-
-            setEventInfoFields(selectedEvent);
             moveCameraToEvent(selectedEvent);
-        } else {
-            viewEventInfo.setVisibility(View.GONE);
-            viewEventInfoPlaceholder.setVisibility(View.VISIBLE);
-
-            imgEventIcon.setImageDrawable(generateEventPlaceholderIcon());
+            eventsMarkersMap.inverse().get(selectedEvent).showInfoWindow();
         }
-    }
-
-    private void setEventInfoFields(Event event) {
-        Person person = event.getPerson();
-
-        String name = getString(R.string.full_name, person.getFirstName(),
-                                person.getLastName());
-        txtEventPerson.setText(name);
-        txtEventType.setText(event.getType());
-        txtEventDate.setText(String.valueOf(event.getYear()));
-
-        String loc = getString(R.string.location, event.getCity(),
-                               event.getCountry());
-        txtEventLocation.setText(loc);
-
-
-        imgEventIcon.setImageDrawable(generateGenderIcon(person.getGender()));
     }
 
     private void moveCameraToEvent(Event event) {
@@ -230,23 +195,7 @@ public class MapFragment extends Fragment
         map.moveCamera(CameraUpdateFactory.newLatLng(ll));
     }
 
-    private Drawable generateGenderIcon(String gender) {
-        IconDrawable icon;
-
-        if (Gender.MALE.equals(gender)) {
-            icon = new IconDrawable(getActivity(), FontAwesomeIcons.fa_male);
-            icon.colorRes(R.color.colorMale);
-        } else {
-            icon = new IconDrawable(getActivity(), FontAwesomeIcons.fa_female);
-            icon.colorRes(R.color.colorFemale);
-        }
-
-        icon.sizeDp(EVENT_ICON_SIZE_DP);
-
-        return icon;
-    }
-
-    private Drawable generateEventPlaceholderIcon() {
+    private Drawable generateMarkerIcon() {
         IconDrawable icon = new IconDrawable(getActivity(), FontAwesomeIcons.fa_map_marker);
         icon.colorRes(R.color.colorAccent);
         icon.sizeDp(EVENT_ICON_SIZE_DP);
