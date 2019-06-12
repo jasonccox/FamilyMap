@@ -2,10 +2,13 @@
 <resources>
     <color name="colorPrimary">#0067ff</color>
     <color name="colorPrimaryDark">#00409f</color>
-    <color name="colorPrimaryText">#222222</color>
+    <color name="colorPrimaryText">#333333</color>
     <color name="colorPrimaryDarkText">#000000</color>
-    <color name="colorPrimaryLightText">#444444</color>
+    <color name="colorPrimaryLightText">#666666</color>
     <color name="colorAccent">#ff9800</color>
     <color name="colorBackground">#ffffff</color>
     <color name="colorError">#ff1800</color>
+    <color name="colorMale">#0027ff</color>
+    <color name="colorFemale">#d800ff</color>
+    <color name="colorDisabled">#aaaaaa</color>
 </resources>

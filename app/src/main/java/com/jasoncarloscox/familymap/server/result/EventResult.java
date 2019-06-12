@@ -51,6 +51,7 @@ public class EventResult extends ApiResult {
         e.setCountry(country);
         e.setCity(city);
         e.setType(eventType);
+        e.setYear(year);
 
         return e;
     }

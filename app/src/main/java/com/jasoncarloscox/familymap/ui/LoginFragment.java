@@ -2,6 +2,8 @@ package com.jasoncarloscox.familymap.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,6 +70,15 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     private static final String KEY_MALE = "male";
     private static final String KEY_FEMALE = "female";
     private static final String KEY_REGISTER = "register";
+    private static final String KEY_VALID_HOST = "valid_host";
+    private static final String KEY_VALID_PORT = "valid_port";
+    private static final String KEY_VALID_USERNAME = "valid_username";
+    private static final String KEY_VALID_PASSWORD = "valid_password";
+    private static final String KEY_VALID_CONFIRM_PASSWORD = "valid_confirm_password";
+    private static final String KEY_VALID_FIRST_NAME = "valid_first_name";
+    private static final String KEY_VALID_LAST_NAME = "valid_last_name";
+    private static final String KEY_VALID_EMAIL = "valid_email";
+    private static final String KEY_VALID_GENDER = "valid_gender";
     private static final String KEY_VISIBILITY_ERROR_HOST = "visibility_error_host";
     private static final String KEY_VISIBILITY_ERROR_PORT = "visibility_error_port";
     private static final String KEY_VISIBILITY_ERROR_USERNAME = "visibility_error_username";
@@ -133,8 +144,21 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
     private Listener listener;
 
+    // keeping track of data fetching status
     private boolean fetchPersonsComplete = false;
     private boolean fetchEventsComplete = false;
+
+    // keeping track of form validity
+    private boolean hostValid = false;
+    private boolean portValid = false;
+    private boolean usernameValid = false;
+    private boolean passwordValid = false;
+    private boolean confirmPasswordValid = false;
+    private boolean firstNameValid = false;
+    private boolean lastNameValid = false;
+    private boolean emailValid = false;
+    private boolean genderValid = false;
+
 
     public LoginFragment() {
         // Required empty public constructor
@@ -183,6 +207,16 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         savedInstanceState.putBoolean(KEY_FEMALE, radioFemale.hasSelection());
         
         savedInstanceState.putBoolean(KEY_REGISTER, register);
+
+        savedInstanceState.putBoolean(KEY_VALID_HOST, hostValid);
+        savedInstanceState.putBoolean(KEY_VALID_PORT, portValid);
+        savedInstanceState.putBoolean(KEY_VALID_USERNAME, usernameValid);
+        savedInstanceState.putBoolean(KEY_VALID_PASSWORD, passwordValid);
+        savedInstanceState.putBoolean(KEY_VALID_CONFIRM_PASSWORD, confirmPasswordValid);
+        savedInstanceState.putBoolean(KEY_VALID_FIRST_NAME, firstNameValid);
+        savedInstanceState.putBoolean(KEY_VALID_LAST_NAME, lastNameValid);
+        savedInstanceState.putBoolean(KEY_VALID_EMAIL, emailValid);
+        savedInstanceState.putBoolean(KEY_VALID_GENDER, genderValid);
         
         savedInstanceState.putInt(KEY_VISIBILITY_ERROR_HOST, txtErrorHost.getVisibility());
         savedInstanceState.putInt(KEY_VISIBILITY_ERROR_PORT, txtErrorPort.getVisibility());
@@ -225,9 +259,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         fetchEventsComplete = true;
 
         if (fetchPersonsComplete) {
-            model.load(fetchedPersons, user.getPersonId(), fetchedEvents);
-            showProgressSpinner(false);
-            listener.onLoginComplete();
+            onFetchDataComplete();
         }
     }
 
@@ -251,9 +283,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         fetchPersonsComplete = true;
 
         if (fetchEventsComplete) {
-            model.load(fetchedPersons, user.getPersonId(), fetchedEvents);
-            showProgressSpinner(false);
-            listener.onLoginComplete();
+            onFetchDataComplete();
         }
     }
 
@@ -342,78 +372,182 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     }
 
     /**
-     * Adds listeners to input fields to validate them.
+     * Adds listeners to input fields to validate them and enable/disable the
+     * login/register button based on validation.
      */
     private void addValidateListeners() {
+        editHost.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onEditHostInteraction();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         editHost.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    validateHost();
+                    onEditHostInteraction();
                 }
             }
+        });
+
+        editPort.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onEditPortInteraction();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         editPort.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    validatePort();
+                    onEditPortInteraction();
                 }
             }
+        });
+
+        editUsername.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onEditUsernameInteraction();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         editUsername.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    validateUsername();
+                    onEditUsernameInteraction();
                 }
             }
+        });
+
+        editPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onEditPasswordInteraction();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         editPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    validatePassword();
+                    onEditPasswordInteraction();
                 }
             }
+        });
+
+        editConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onEditConfirmPasswordInteraction();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         editConfirmPassword.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    validateConfirmPassword();
+                    onEditConfirmPasswordInteraction();
                 }
             }
+        });
+
+        editFirstName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onEditFirstNameInteraction();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         editFirstName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    validateFirstName();
+                    onEditFirstNameInteraction();
                 }
             }
+        });
+
+        editLastName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onEditLastNameInteraction();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         editLastName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    validateLastName();
+                    onEditLastNameInteraction();
                 }
             }
+        });
+
+        editEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                onEditEmailInteraction();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
 
         editEmail.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                    validateEmail();
+                    onEditEmailInteraction();
                 }
             }
         });
@@ -421,7 +555,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         radioGrpGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                validateGender();
+                onRadioGrpGenderInteraction();
             }
         });
 
@@ -450,6 +584,16 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
         register = savedInstanceState.getBoolean(KEY_REGISTER);
 
+        hostValid = savedInstanceState.getBoolean(KEY_VALID_HOST);
+        portValid = savedInstanceState.getBoolean(KEY_VALID_PORT);
+        usernameValid = savedInstanceState.getBoolean(KEY_VALID_USERNAME);
+        passwordValid = savedInstanceState.getBoolean(KEY_VALID_PASSWORD);
+        confirmPasswordValid = savedInstanceState.getBoolean(KEY_VALID_CONFIRM_PASSWORD);
+        firstNameValid = savedInstanceState.getBoolean(KEY_VALID_FIRST_NAME);
+        lastNameValid = savedInstanceState.getBoolean(KEY_VALID_LAST_NAME);
+        emailValid = savedInstanceState.getBoolean(KEY_VALID_EMAIL);
+        genderValid = savedInstanceState.getBoolean(KEY_VALID_GENDER);
+
         txtErrorHost.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_HOST));
         txtErrorPort.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_PORT));
         txtErrorUsername.setVisibility(savedInstanceState.getInt(KEY_VISIBILITY_ERROR_USERNAME));
@@ -469,6 +613,91 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         txtErrorLastName.setText(savedInstanceState.getString(KEY_MSG_ERROR_LAST_NAME));
         txtErrorEmail.setText(savedInstanceState.getString(KEY_MSG_ERROR_EMAIL));
         txtErrorGender.setText(savedInstanceState.getString(KEY_MSG_ERROR_GENDER));
+    }
+
+    /**
+     * Called when a user interacts with the editHost text box
+     */
+    private void onEditHostInteraction() {
+        hostValid = validateHost();
+        setLoginBtnEnabled(areFieldsValid());
+    }
+
+    /**
+     * Called when a user interacts with the editPort text box
+     */
+    private void onEditPortInteraction() {
+        portValid = validatePort();
+        setLoginBtnEnabled(areFieldsValid());
+    }
+
+    /**
+     * Called when a user interacts with the editUsername text box
+     */
+    private void onEditUsernameInteraction() {
+        usernameValid = validateUsername();
+        setLoginBtnEnabled(areFieldsValid());
+    }
+
+    /**
+     * Called when a user interacts with the editPassword text box
+     */
+    private void onEditPasswordInteraction() {
+        passwordValid = validatePassword();
+        setLoginBtnEnabled(areFieldsValid());
+    }
+
+    /**
+     * Called when a user interacts with the editConfirmPassword text box
+     */
+    private void onEditConfirmPasswordInteraction() {
+        confirmPasswordValid = validateConfirmPassword();
+        setLoginBtnEnabled(areFieldsValid());
+    }
+
+    /**
+     * Called when a user interacts with the editFirstName text box
+     */
+    private void onEditFirstNameInteraction() {
+        firstNameValid = validateFirstName();
+        setLoginBtnEnabled(areFieldsValid());
+    }
+
+    /**
+     * Called when a user interacts with the editLastName text box
+     */
+    private void onEditLastNameInteraction() {
+        lastNameValid = validateLastName();
+        setLoginBtnEnabled(areFieldsValid());
+    }
+
+    /**
+     * Called when a user interacts with the editEmail text box
+     */
+    private void onEditEmailInteraction() {
+        emailValid = validateEmail();
+        setLoginBtnEnabled(areFieldsValid());
+    }
+
+    /**
+     * Called when a user interacts with the gender radio group
+     */
+    private void onRadioGrpGenderInteraction() {
+        genderValid = validateGender();
+        setLoginBtnEnabled(areFieldsValid());
+    }
+
+    /**
+     * Enables/disables the login button and changes its color.
+     * @param enabled whether the button should be enabled
+     */
+    private void setLoginBtnEnabled(boolean enabled) {
+        btnLogin.setEnabled(enabled);
+        if (enabled) {
+            btnLogin.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+        } else {
+            btnLogin.setBackgroundColor(getResources().getColor(R.color.colorDisabled));
+        }
     }
 
     /**
@@ -498,60 +727,23 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
         // let the fragment know if it is in register mode or not
         this.register = register;
+
+        setLoginBtnEnabled(areFieldsValid());
     }
 
     /**
-     * Checks if all of the field entries are valid, showing error messages
-     * when needed.
-     *
      * @return whether all of the field entries are valid
      */
-    private boolean validateFields() {
+    private boolean areFieldsValid() {
 
-        // TODO: disable button when not valid
+        boolean valid;
 
-        boolean valid = true;
-
-        if (!validateHost()) {
-            valid = false;
-        }
-
-        if (!validatePort()) {
-            valid = false;
-        }
-
-        if (!validateUsername()) {
-            valid = false;
-        }
-
-        if (!validatePassword()) {
-            valid = false;
-        }
-
-        // only check more fields if the user is registering
-
-        if (!register) {
-            return valid;
-        }
-
-        if (!validateConfirmPassword()) {
-            valid = false;
-        }
-
-        if (!validateFirstName()) {
-            valid = false;
-        }
-
-        if (!validateLastName()) {
-            valid = false;
-        }
-
-        if (!validateEmail()) {
-            valid = false;
-        }
-
-        if (!validateGender()) {
-            valid = false;
+        if (register) {
+            valid = hostValid && portValid && usernameValid && passwordValid &&
+                    confirmPasswordValid && firstNameValid && lastNameValid &&
+                    emailValid && genderValid;
+        } else {
+            valid = hostValid && portValid && usernameValid && passwordValid;
         }
 
         return valid;
@@ -750,7 +942,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     private void onBtnClick() {
         showProgressSpinner(true);
 
-        boolean allFieldsValid = validateFields();
+        boolean allFieldsValid = areFieldsValid();
 
         if (!allFieldsValid) {
             Toast toast = Toast.makeText(getActivity().getApplicationContext(),
@@ -883,6 +1075,16 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     }
 
     /**
+     * Called when both persons and events have been fetched.
+     */
+    private void onFetchDataComplete() {
+        model.load(fetchedPersons, user.getPersonId(), fetchedEvents);
+        showProgressSpinner(false);
+        showWelcome();
+        listener.onLoginComplete();
+    }
+
+    /**
      * Shows or hides the progress spinner
      *
      * @param show whether to show the spinner
@@ -895,5 +1097,19 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
             btnLogin.setVisibility(View.VISIBLE);
             progressSpinner.setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * Shows a welcome message to the logged in user
+     */
+    private void showWelcome() {
+        Person userPerson = model.getPerson(model.getUser().getPersonId());
+
+        String msg = getString(R.string.welcome, userPerson.getFirstName(),
+                userPerson.getLastName());
+
+        Toast toast = Toast.makeText(getActivity().getApplicationContext(), msg,
+                Toast.LENGTH_SHORT);
+        toast.show();
     }
 }

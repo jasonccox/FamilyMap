@@ -12,6 +12,8 @@
     <string name="email">Email</string>
     <string name="male">Male</string>
     <string name="female">Female</string>
+    <string name="male_short">M</string>
+    <string name="female_short">F</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
     <string name="not_registered">Not registered yet? Click here to sign up!</string>
@@ -26,6 +28,15 @@
     <string name="user_not_found">No user found with that username</string>
     <string name="wrong_password">Incorrect password</string>
     <string name="username_taken">That username has already been taken. Please choose a new one.</string>
-    <string name="welcome">Welcome</string>
+    <string name="welcome">Welcome %s %s</string>
     <string name="title_activity_maps">Map</string>
+    <string name="click_to_view_event">Click an event marker to see its details</string>
+    <string name="text_divider_horizontal">|</string>
+    <string name="full_name">%s %s</string>
+    <string name="location">%s, %s</string>
+    <string name="event_popup_title">%s %s (%s) | %s</string>
+    <string name="event_popup_snippet">%d - %s, %s</string>
+    <string name="search">Search</string>
+    <string name="filter">Filter</string>
+    <string name="settings">Settings</string>
 </resources>
