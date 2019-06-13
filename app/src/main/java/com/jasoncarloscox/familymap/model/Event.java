@@ -3,7 +3,7 @@ package com.jasoncarloscox.familymap.model;
 /**
  * Represents an event occurring in one person's life.
  */
-public class Event {
+public class Event implements Comparable<Event> {
 
     private final String eventID;
     private String personID;
@@ -166,4 +166,55 @@ public class Event {
         return eventID.equals(((Event) o).eventID);
     }
 
+    @Override
+    public int compareTo(Event o) {
+        if (o == null) {
+            return 1;
+        }
+
+        // birth events are always first
+
+        if ("birth".equalsIgnoreCase(this.getType()) &&
+                !"birth".equalsIgnoreCase(o.getType())) {
+            return -1;
+        }
+
+        if (!"birth".equalsIgnoreCase(this.getType()) &&
+                "birth".equalsIgnoreCase(o.getType())) {
+            return 1;
+        }
+
+        // death events are always last
+
+        if ("death".equalsIgnoreCase(this.getType()) &&
+                !"death".equalsIgnoreCase(o.getType())) {
+            return 1;
+        }
+
+        if (!"death".equalsIgnoreCase(this.getType()) &&
+                "death".equalsIgnoreCase(o.getType())) {
+            return -1;
+        }
+
+        // sort primarily by date, break ties by lower-case type
+
+        if (this.getYear() == o.getYear()) {
+
+            if (this.getType() == null && o.getType() == null) {
+                return 0;
+            }
+
+            if (this.getType() == null && o.getType() != null) {
+                return -1;
+            }
+
+            if (this.getType() != null && o.getType() == null) {
+                return 1;
+            }
+
+            return this.getType().toLowerCase().compareTo(o.getType().toLowerCase());
+        }
+
+        return new Integer(this.getYear()).compareTo(o.getYear());
+    }
 }

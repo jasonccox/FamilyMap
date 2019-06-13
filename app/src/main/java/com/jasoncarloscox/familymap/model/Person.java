@@ -1,13 +1,14 @@
 package com.jasoncarloscox.familymap.model;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
+import com.jasoncarloscox.familymap.model.Relative.Relationship;
 
 /**
  * Represents a person and his/her relationships in the family map.
  */
-public class Person {
+public class Person implements Comparable<Person> {
 
     private final String personID;
     private String firstName;
@@ -45,11 +46,11 @@ public class Person {
      */
     public void addEvent(Event event) {
         int i = 0;
-        while (i < events.size() && event.getYear() > events.get(i).getYear()) {
+        while (i < events.size() && event.compareTo(events.get(i)) > 0) {
             i++;
         }
-
         events.add(i, event);
+
         event.setPerson(this);
     }
 
@@ -83,8 +84,7 @@ public class Person {
      */
     private void addChild(Person child) {
         int i = 0;
-        while (i < children.size() && child.getFirstEvent(null).getYear() >
-                                      children.get(i).getFirstEvent(null).getYear()) {
+        while (i < children.size() && child.compareTo(children.get(i)) > 0) {
             i++;
         }
 
@@ -247,6 +247,40 @@ public class Person {
         }
     }
 
+    public List<Relative> getRelatives() {
+        List<Relative> relatives = new ArrayList<>();
+
+        if (father != null) {
+            relatives.add(new Relative(father, Relationship.FATHER));
+        }
+
+        if (mother != null) {
+            relatives.add(new Relative(mother, Relationship.MOTHER));
+        }
+
+        if (spouse != null) {
+            if (Gender.MALE.equals(spouse.getGender())) {
+                relatives.add(new Relative(spouse, Relationship.HUSBAND));
+            } else if (Gender.FEMALE.equals(spouse.getGender())) {
+                relatives.add(new Relative(spouse, Relationship.WIFE));
+            } else {
+                relatives.add(new Relative(spouse, null));
+            }
+        }
+
+        for (Person child : children) {
+            if (Gender.MALE.equals(child.getGender())) {
+                relatives.add(new Relative(child, Relationship.SON));
+            } else if (Gender.FEMALE.equals(child.getGender())) {
+                relatives.add(new Relative(child, Relationship.DAUGHTER));
+            } else {
+                relatives.add(new Relative(child, null));
+            }
+        }
+
+        return relatives;
+    }
+
     @Override
     public int hashCode() {
         return personID.hashCode();
@@ -268,5 +302,28 @@ public class Person {
 
         return personID.equals(((Person) o).personID);
     }
-    
+
+    @Override
+    public int compareTo(Person o) {
+        if (o == null) {
+            return 1;
+        }
+
+        Event thisFirstEvent = this.getFirstEvent(null);
+        Event oFirstEvent = o.getFirstEvent(null);
+
+        if (thisFirstEvent == null && oFirstEvent == null) {
+            return 0;
+        }
+
+        if (thisFirstEvent == null && oFirstEvent != null) {
+            return -1;
+        }
+
+        if (thisFirstEvent != null && oFirstEvent == null) {
+            return 1;
+        }
+
+        return thisFirstEvent.compareTo(oFirstEvent);
+    }
 }

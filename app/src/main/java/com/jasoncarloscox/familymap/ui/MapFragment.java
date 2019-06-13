@@ -1,9 +1,11 @@
 package com.jasoncarloscox.familymap.ui;
 
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +27,7 @@ import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Event;
 import com.jasoncarloscox.familymap.model.Gender;
 import com.jasoncarloscox.familymap.model.Model;
+import com.jasoncarloscox.familymap.model.Person;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
@@ -109,6 +112,7 @@ public class MapFragment extends Fragment
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
         map.setOnMarkerClickListener(this);
+        map.setOnInfoWindowClickListener(this);
 
         for (Event event : model.getFilteredEvents()) {
             addEventMarker(event);
@@ -126,7 +130,12 @@ public class MapFragment extends Fragment
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        // TODO: do something here!
+        Log.d(TAG, "info window clicked");
+        Event event = eventsMarkersMap.get(marker);
+
+        Intent intent = new Intent(getActivity(), PersonActivity.class);
+        intent.putExtra(PersonActivity.KEY_PERSON_ID, event.getPersonId());
+        startActivity(intent);
     }
 
     /**
@@ -171,7 +180,7 @@ public class MapFragment extends Fragment
                                  getString(genderStrRes),
                                  event.getType());
 
-        String snippet = getString(R.string.event_popup_snippet, event.getYear(),
+        String snippet = getString(R.string.event_date_and_location, event.getYear(),
                                    event.getCity(), event.getCountry());
 
         Marker marker = map.addMarker(new MarkerOptions()

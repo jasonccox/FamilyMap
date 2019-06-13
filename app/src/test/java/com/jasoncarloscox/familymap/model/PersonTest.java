@@ -36,6 +36,48 @@ public class PersonTest {
     }
 
     @Test
+    public void getEventsAlwaysPutsBirthFirst() {
+        Event first = new Event("first");
+        first.setYear(1);
+
+        Event second = new Event("second");
+        second.setYear(2);
+
+        Event third = new Event("third");
+        third.setYear(3);
+        third.setType("birth");
+
+        person.addEvent(second);
+        person.addEvent(third);
+        person.addEvent(first);
+
+        assertEquals(third, person.getEvents().get(0));
+        assertEquals(first, person.getEvents().get(1));
+        assertEquals(second, person.getEvents().get(2));
+    }
+
+    @Test
+    public void getEventsAlwaysPutsDeathLast() {
+        Event first = new Event("first");
+        first.setYear(1);
+        first.setType("death");
+
+        Event second = new Event("second");
+        second.setYear(2);
+
+        Event third = new Event("third");
+        third.setYear(3);
+
+        person.addEvent(second);
+        person.addEvent(third);
+        person.addEvent(first);
+
+        assertEquals(second, person.getEvents().get(0));
+        assertEquals(third, person.getEvents().get(1));
+        assertEquals(first, person.getEvents().get(2));
+    }
+
+    @Test
     public void getEventsReturnsEventsInChronologicalOrder() {
         Event first = new Event("first");
         first.setYear(1);
@@ -218,5 +260,106 @@ public class PersonTest {
 
         assertEquals(null, person.getSpouse());
         assertEquals(null, person.getSpouseID());
+    }
+
+    @Test
+    public void getRelativesSetsCorrectRelationships() {
+        Person dad = new Person("dad");
+        person.setFather(dad);
+        assertEquals(Relative.Relationship.FATHER,
+                     person.getRelatives().get(0).getRelationship());
+        person.setFather(null);
+
+        Person mom = new Person("mom");
+        person.setMother(mom);
+        assertEquals(Relative.Relationship.MOTHER,
+                person.getRelatives().get(0).getRelationship());
+        person.setMother(null);
+
+        Person wife = new Person("wife");
+        wife.setGender(Gender.FEMALE);
+        person.setSpouse(wife);
+        assertEquals(Relative.Relationship.WIFE,
+                person.getRelatives().get(0).getRelationship());
+
+        Person husband = new Person("husband");
+        husband.setGender(Gender.MALE);
+        person.setSpouse(husband);
+        assertEquals(Relative.Relationship.HUSBAND,
+                person.getRelatives().get(0).getRelationship());
+        person.setSpouse(null);
+
+        Person son = new Person("son");
+        son.setGender(Gender.MALE);
+        son.setFather(person);
+        assertEquals(Relative.Relationship.SON,
+                     person.getRelatives().get(0).getRelationship());
+        person = new Person("pid");
+
+        Person daughter = new Person("daughter");
+        daughter.setGender(Gender.FEMALE);
+        daughter.setFather(person);
+        assertEquals(Relative.Relationship.DAUGHTER,
+                person.getRelatives().get(0).getRelationship());
+    }
+
+    @Test
+    public void getRelativesReturnsInCorrectOrder() {
+        Person dad = new Person("dad");
+        person.setFather(dad);
+
+        Person mom = new Person("mom");
+        person.setMother(mom);
+
+        Person wife = new Person("wife");
+        wife.setGender(Gender.FEMALE);
+        person.setSpouse(wife);
+
+        Person son = new Person("son");
+        son.setGender(Gender.MALE);
+        son.setFather(person);
+
+        List<Relative> relatives = person.getRelatives();
+
+        assertEquals(Relative.Relationship.FATHER, relatives.get(0).getRelationship());
+        assertEquals(Relative.Relationship.MOTHER, relatives.get(1).getRelationship());
+        assertEquals(Relative.Relationship.WIFE, relatives.get(2).getRelationship());
+        assertEquals(Relative.Relationship.SON, relatives.get(3).getRelationship());
+    }
+
+    @Test
+    public void compareToSortsByFirstEvent() {
+        Person person1 = new Person("p1");
+        Event event1 = new Event("e1");
+        event1.setYear(1);
+        person1.addEvent(event1);
+
+        Person person2 = new Person("p2");
+        Event event2 = new Event("e2");
+        event2.setYear(2);
+        person2.addEvent(event2);
+
+        assertEquals(event1.compareTo(event2), person1.compareTo(person2));
+        assertEquals(event2.compareTo(event1), person2.compareTo(person1));
+    }
+
+    @Test
+    public void compareToHandlesNoFirstEvent() {
+        // neither has first event
+
+        Person person1 = new Person("p1");
+        Person person2 = new Person("p2");
+
+        assertTrue(person1.compareTo(person2) == 0);
+        assertTrue(person2.compareTo(person1) == 0);
+
+        // only one has first event
+
+        Event event1 = new Event("e1");
+        event1.setYear(1);
+        person1.addEvent(event1);
+
+        assertTrue(person1.compareTo(person2) > 0);
+        assertTrue(person2.compareTo(person1) < 0);
     }
 }

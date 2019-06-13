@@ -19,21 +19,15 @@ import com.joanzapata.iconify.fonts.FontAwesomeModule;
 public class MainActivity extends AppCompatActivity
         implements LoginFragment.Listener{
 
-    private static final String KEY_SHOWING_LOGIN = "showing_login";
+    private static boolean showingLogin = true;
 
     private LoginFragment loginFragment;
     private MapFragment mapFragment;
-
-    private boolean showingLogin = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (savedInstanceState != null) {
-            showingLogin = savedInstanceState.getBoolean(KEY_SHOWING_LOGIN);
-        }
 
         Iconify.with(new FontAwesomeModule());
 
@@ -49,12 +43,6 @@ public class MainActivity extends AppCompatActivity
         if (fragment instanceof LoginFragment) {
             ((LoginFragment) fragment).setListener(this);
         }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-        savedInstanceState.putBoolean(KEY_SHOWING_LOGIN, showingLogin);
     }
 
     @Override
