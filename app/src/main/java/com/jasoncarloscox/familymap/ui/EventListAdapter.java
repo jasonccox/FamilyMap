@@ -1,5 +1,6 @@
 package com.jasoncarloscox.familymap.ui;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -38,7 +39,7 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.View
             txtSubtitle = itemView.findViewById(R.id.person_item_subtitle);
         }
 
-        public void bindData(Event event) {
+        public void bindData(final Event event) {
             Drawable icon = FAIconGenerator.eventIcon(itemView.getContext(),
                                                       ICON_SIZE_DP,
                                                       R.color.colorAccent);
@@ -53,6 +54,16 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.View
                               event.getCountry());
 
             txtSubtitle.setText(dateLocation);
+
+            itemView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(itemView.getContext(),
+                                               EventActivity.class);
+                    intent.putExtra(EventActivity.KEY_EVENT_ID, event.getId());
+                    itemView.getContext().startActivity(intent);
+                }
+            });
         }
     }
 

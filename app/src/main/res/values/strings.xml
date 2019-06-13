@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Family Map</string>
     <string name="person_activity_title">Person Details: %s %s</string>
+    <string name="event_activity_title">Event Details</string>
     <string name="server_address">Server Address</string>
     <string name="protocol">http://</string>
     <string name="host">hostname</string>

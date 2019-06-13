@@ -55,15 +55,11 @@ public class PersonActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person);
 
-        ActionBar ab = getSupportActionBar();
-        ab.setDisplayHomeAsUpEnabled(true);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         initComponents();
 
-        if (getIntent().hasExtra(KEY_PERSON_ID)) {
-            person = model.getPerson(getIntent().getExtras().getString(KEY_PERSON_ID));
-        }
+        person = model.getPerson(getIntent().getExtras().getString(KEY_PERSON_ID));
 
         restoreState(savedInstanceState);
 
