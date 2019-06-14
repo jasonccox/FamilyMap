@@ -1,7 +1,11 @@
 package com.jasoncarloscox.familymap.model;
 
+import com.google.android.gms.maps.model.Marker;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -23,16 +27,23 @@ public class Model {
     }
 
     private FamilyTree tree = new FamilyTree();
-    private User user;
+    private User user = null;
     private EventFilter filter;
+    private Settings settings;
+    private Map<Event, Marker> markersByEvent = new HashMap<>();
 
-    private Model() {}
+    private Model() {
+        settings = new Settings();
+    }
 
     /**
      * Loads persons and events into the family tree. This includes setting each
      * person's father, mother, and children and whether the person is on the
      * maternal or paternal side of the rootPerson's tree. It also includes
-     * attaching each event to its person
+     * attaching each event to its person.
+     *
+     * All persons and events will be cleared from the tree before the new ones
+     * are loaded.
      *
      * @param persons the persons to load
      * @param rootPersonId the id of the root person - this person must be
@@ -74,21 +85,6 @@ public class Model {
     }
 
     /**
-     * @return all events matching the current filter
-     */
-    public Collection<Event> getFilteredEvents() {
-        Collection<Event> filteredEvents = new ArrayList<>();
-
-        for (Event event : getEvents()) {
-            if (filter.showEvent(event)) {
-                filteredEvents.add(event);
-            }
-        }
-
-        return filteredEvents;
-    }
-
-    /**
      * @return the types of events in the family tree
      */
     public Set<String> getEventTypes() {
@@ -103,18 +99,49 @@ public class Model {
         return user;
     }
 
-    public void setUser(User user) {
+    private void setUser(User user) {
         this.user = user;
+    }
+
+    public boolean isLoggedIn() {
+        return user != null;
+    }
+
+    public void logout() {
+        clear();
+    }
+
+    public void login(User user) {
+        setUser(user);
+    }
+
+    public void addMarker(Marker marker, Event event) {
+        markersByEvent.put(event, marker);
+    }
+
+    public Marker getMarker(Event event) {
+        return markersByEvent.get(event);
+    }
+
+    public void refreshMarkers() {
+        for (Event event : markersByEvent.keySet()) {
+            markersByEvent.get(event).setVisible(filter.showEvent(event));
+        }
     }
 
     public EventFilter getFilter() {
         return filter;
     }
 
+    public Settings getSettings() {
+        return settings;
+    }
+
     public void clear() {
         tree = new FamilyTree();
         user = null;
         filter = null;
+        settings = new Settings();
     }
 
 }

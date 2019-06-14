@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -154,6 +155,85 @@ public class EventFilterTest {
                 assertTrue(filter.showEvent(event));
             }
         }
+    }
+
+    @Test
+    public void filterReturnsEventsMatchingFilter() {
+        Event event1 = new Event("eid1");
+        event1.setType("birth");
+
+        Event event2 = new Event("eid2");
+        event2.setType("death");
+
+        ArrayList<Event> events = new ArrayList<>();
+        events.add(event1);
+        events.add(event2);
+
+        filter.setShowType("birth", false);
+
+        Collection<Event> filteredEvents = filter.filter(events);
+
+        assertEquals(1, filteredEvents.size());
+        assertTrue(filteredEvents.contains(event2));
+    }
+
+    @Test
+    public void filterPreservesEventOrder() {
+        Event event1 = new Event("eid1");
+        event1.setType("birth");
+
+        Event event2 = new Event("eid2");
+        event2.setType("death");
+
+        ArrayList<Event> events = new ArrayList<>();
+        events.add(event1);
+        events.add(event2);
+
+        List<Event> filteredEvents = filter.filter(events);
+
+        assertEquals(event1, filteredEvents.get(0));
+        assertEquals(event2, filteredEvents.get(1));
+    }
+    
+    @Test
+    public void detectsAlteration() {
+        filter.setShowPaternalSide(!filter.showPaternalSide());
+        assertTrue(filter.isAltered());
+        filter.setShowPaternalSide(!filter.showPaternalSide());
+        assertFalse(filter.isAltered());
+
+        filter.setShowMaternalSide(!filter.showMaternalSide());
+        assertTrue(filter.isAltered());
+        filter.setShowMaternalSide(!filter.showMaternalSide());
+        assertFalse(filter.isAltered());
+
+        filter.setShowMale(!filter.showMale());
+        assertTrue(filter.isAltered());
+        filter.setShowMale(!filter.showMale());
+        assertFalse(filter.isAltered());
+
+        filter.setShowFemale(!filter.showFemale());
+        assertTrue(filter.isAltered());
+        filter.setShowFemale(!filter.showFemale());
+        assertFalse(filter.isAltered());
+        
+        filter.setShowType("birth", !filter.showType("birth"));
+        assertTrue(filter.isAltered());
+        filter.setShowType("birth", !filter.showType("birth"));
+        assertFalse(filter.isAltered());
+    }
+    
+    @Test
+    public void resetAlteredResets() {
+        filter.setShowPaternalSide(!filter.showPaternalSide());
+        filter.setShowMaternalSide(!filter.showMaternalSide());
+        filter.setShowMale(!filter.showMale());
+        filter.setShowFemale(!filter.showFemale());
+        filter.setShowType("birth", !filter.showType("birth"));
+
+        filter.resetAltered();
+        
+        assertFalse(filter.isAltered());
     }
 
     private int eventCounter = 0;

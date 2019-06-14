@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jasoncarloscox.familymap.R;
+import com.jasoncarloscox.familymap.model.Event;
 import com.jasoncarloscox.familymap.model.Gender;
 import com.jasoncarloscox.familymap.model.Model;
 import com.jasoncarloscox.familymap.model.Person;
@@ -150,8 +151,10 @@ public class PersonActivity extends AppCompatActivity {
         txtLastName.setText(person.getLastName());
         txtGender.setText(generateGenderString(person.getGender()));
 
+        List<Event> filteredEvents = model.getFilter().filter(person.getEvents());
+
         recyclerEvents.setLayoutManager(new LinearLayoutManager(this));
-        recyclerEvents.setAdapter(new EventListAdapter(person.getEvents()));
+        recyclerEvents.setAdapter(new EventListAdapter(filteredEvents));
 
         recyclerFamily.setLayoutManager(new LinearLayoutManager(this));
         recyclerFamily.setAdapter(new RelativeListAdapter(person.getRelatives()));

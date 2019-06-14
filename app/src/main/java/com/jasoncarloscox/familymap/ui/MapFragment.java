@@ -18,20 +18,22 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Event;
+import com.jasoncarloscox.familymap.model.EventFilter;
 import com.jasoncarloscox.familymap.model.Gender;
 import com.jasoncarloscox.familymap.model.Model;
-import com.jasoncarloscox.familymap.model.Person;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A fragment displaying a map of events.
@@ -54,7 +56,6 @@ public class MapFragment extends Fragment
 
     private Event selectedEvent;
     private Model model = Model.instance();
-    private BiMap<Marker, Event> eventsMarkersMap = HashBiMap.create();
 
     public MapFragment() {
         // Required empty public constructor
@@ -114,7 +115,9 @@ public class MapFragment extends Fragment
         map.setOnMarkerClickListener(this);
         map.setOnInfoWindowClickListener(this);
 
-        for (Event event : model.getFilteredEvents()) {
+        EventFilter filter = model.getFilter();
+
+        for (Event event : filter.filter(model.getEvents())) {
             addEventMarker(event);
         }
 
@@ -123,7 +126,7 @@ public class MapFragment extends Fragment
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        setSelectedEvent(eventsMarkersMap.get(marker));
+        setSelectedEvent((Event) marker.getTag());
 
         return false;
     }
@@ -131,7 +134,7 @@ public class MapFragment extends Fragment
     @Override
     public void onInfoWindowClick(Marker marker) {
         Log.d(TAG, "info window clicked");
-        Event event = eventsMarkersMap.get(marker);
+        Event event = (Event) marker.getTag();
 
         Intent intent = new Intent(getActivity(), PersonActivity.class);
         intent.putExtra(PersonActivity.KEY_PERSON_ID, event.getPersonId());
@@ -187,7 +190,8 @@ public class MapFragment extends Fragment
                                 .position(ll)
                                 .title(title)
                                 .snippet(snippet));
-        eventsMarkersMap.put(marker, event);
+        marker.setTag(event);
+        model.addMarker(marker, event);
     }
 
     private void setSelectedEvent(Event event) {
@@ -195,7 +199,7 @@ public class MapFragment extends Fragment
 
         if (selectedEvent != null) {
             moveCameraToEvent(selectedEvent);
-            eventsMarkersMap.inverse().get(selectedEvent).showInfoWindow();
+            model.getMarker(selectedEvent).showInfoWindow();
         }
     }
 

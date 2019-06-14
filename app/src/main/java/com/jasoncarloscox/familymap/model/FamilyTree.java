@@ -24,7 +24,10 @@ public class FamilyTree {
      * Loads persons and events into the family tree. This includes setting each
      * person's father, mother, and children and whether the person is on the
      * maternal or paternal side of the rootPerson's tree. It also includes
-     * attaching each event to its person
+     * attaching each event to its person.
+     *
+     * All persons and events will be cleared from the tree before the new ones
+     * are loaded.
      *
      * @param persons the persons to load
      * @param rootPersonId the id of the root person - this person must be
@@ -33,6 +36,11 @@ public class FamilyTree {
      */
     protected void load(Collection<Person> persons, String rootPersonId,
                      Collection<Event> events) {
+
+        personsById.clear();
+        eventsById.clear();
+        rootPerson = null;
+        eventTypes = new HashSet<>();
 
         if (persons != null && !persons.isEmpty()) {
             loadPersons(persons, rootPersonId);

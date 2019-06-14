@@ -117,10 +117,14 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * @return the event's type
+     * @return the event's type, in all lowercase
      */
     public String getType() {
-        return eventType;
+        if (eventType != null) {
+            return eventType.toLowerCase();
+        }
+
+        return null;
     }
 
     /**

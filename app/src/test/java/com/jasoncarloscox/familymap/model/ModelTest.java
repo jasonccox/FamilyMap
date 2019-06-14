@@ -1,5 +1,8 @@
 package com.jasoncarloscox.familymap.model;
 
+import com.google.android.gms.internal.maps.zzt;
+import com.google.android.gms.maps.model.Marker;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -90,6 +93,39 @@ public class ModelTest {
     }
 
     @Test
+    public void loadClearsPriorData() {
+        Person person = new Person("pid");
+        Event event = new Event("eid");
+        event.setType("birth");
+        event.setPersonId(person.getId());
+
+        ArrayList<Person> persons = new ArrayList<>();
+        persons.add(person);
+
+        ArrayList<Event> events = new ArrayList<>();
+        events.add(event);
+
+        model.load(persons, person.getId(), events);
+
+        Person person2 = new Person("pid2");
+        Event event2 = new Event("eid2");
+        event2.setType("death");
+        event2.setPersonId(person.getId());
+
+        ArrayList<Person> persons2 = new ArrayList<>();
+        persons2.add(person2);
+
+        ArrayList<Event> events2 = new ArrayList<>();
+        events2.add(event2);
+
+        model.load(persons2, person2.getId(), events2);
+
+        assertNull(model.getPerson(person.getId()));
+        assertNull(model.getEvent(person.getId()));
+        assertFalse(model.getEventTypes().contains(event.getType()));
+    }
+
+    @Test
     public void getPersonReturnsCorrectPerson() {
         Person person1 = new Person("pid1");
         Person person2 = new Person("pid2");
@@ -145,26 +181,5 @@ public class ModelTest {
         model.load(new ArrayList<Person>(), null, events);
 
         assertNull(model.getEvent("cantfindme"));
-    }
-
-    @Test
-    public void getFilteredEventsReturnsEventsMatchingFilter() {
-        Event event1 = new Event("eid1");
-        event1.setType("birth");
-
-        Event event2 = new Event("eid2");
-        event2.setType("death");
-
-        ArrayList<Event> events = new ArrayList<>();
-        events.add(event1);
-        events.add(event2);
-
-        model.load(new ArrayList<Person>(), null, events);
-        model.getFilter().setShowType("birth", false);
-
-        Collection<Event> filteredEvents = model.getFilteredEvents();
-
-        assertEquals(1, filteredEvents.size());
-        assertTrue(filteredEvents.contains(event2));
     }
 }

@@ -19,8 +19,14 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.SettingsActivity"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
+            android:name=".ui.FilterActivity"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
             android:name=".ui.EventActivity"
-            android:parentActivityName=".ui.MainActivity"/>
+            android:parentActivityName=".ui.MainActivity" />
         <activity
             android:name=".ui.PersonActivity"
             android:parentActivityName=".ui.MainActivity" />
@@ -36,7 +42,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".ui.MainActivity">
+        <activity
+            android:name=".ui.MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

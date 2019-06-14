@@ -2,6 +2,8 @@
     <string name="app_name">Family Map</string>
     <string name="person_activity_title">Person Details: %s %s</string>
     <string name="event_activity_title">Event Details</string>
+    <string name="filter_activity_title">Filter Events</string>
+    <string name="settings_activity_title">Settings</string>
     <string name="server_address">Server Address</string>
     <string name="protocol">http://</string>
     <string name="host">hostname</string>
@@ -24,8 +26,8 @@
     <string name="port_invalid">Invalid port number</string>
     <string name="password_must_match">Passwords must match</string>
     <string name="fix_invalid_fields">Please correct errors above</string>
-    <string name="persons_request_failed">Sorry, your family\'s persons could not be retrieved. Please try again later.</string>
-    <string name="events_request_failed">Sorry, your family\'s events could not be retrieved. Please try again later.</string>
+    <string name="data_request_failed">Sorry, some or all of your data couldn\'t be retrieved. Please try again later.</string>
+    <string name="data_request_succeeded">Data refreshed</string>
     <string name="generic_request_failed">Sorry, your request could not be completed. Please try again later.</string>
     <string name="user_not_found">No user found with that username</string>
     <string name="wrong_password">Incorrect password</string>
@@ -53,4 +55,54 @@
     <string name="wife">Wife</string>
     <string name="son">Son</string>
     <string name="daughter">Daughter</string>
+    <string name="filter_description_show">Show %s</string>
+    <string name="filter_description_hide">Hide %s</string>
+    <string name="filter_title_male">Male Events</string>
+    <string name="filter_title_female">Female Events</string>
+    <string name="filter_title_paternal">Father\'s Side Events</string>
+    <string name="filter_title_maternal">Mother\'s Side Events</string>
+    <string name="filter_title_type">%s Events</string>
+    <string name="filter_description_male">events from male persons</string>
+    <string name="filter_description_female">events from female persons</string>
+    <string name="filter_description_paternal">events from your father and his ancestors</string>
+    <string name="filter_description_maternal">events from your mother and her ancestors</string>
+    <string name="filter_description_type">%s events</string>
+    <string name="color">Color</string>
+    <string name="line_settings_label">%s Lines</string>
+    <string name="line_settings_description_show">Show lines connecting %s</string>
+    <string name="line_settings_description_hide">Hide lines connecting %s</string>
+    <string name="line_setting_label_life">Life Story</string>
+    <string name="line_setting_label_tree">Family Tree</string>
+    <string name="line_setting_label_spouse">Spouse</string>
+    <string name="line_setting_description_life">each person\'s life events</string>
+    <string name="line_setting_description_tree">each person\'s earliest event to his/her parents\' earliest events</string>
+    <string name="line_setting_description_spouse">each person\'s earliest event to his/her spouse\'s earliest event</string>
+    <string name="map_type">Map Type</string>
+    <string name="resync">Re-sync Data</string>
+    <string name="logout">Logout</string>
+
+    <string-array name="colors_array">
+        <!-- IMPORTANT: the order of the items must stay in sync with the
+         order of the enum values in Color.java -->
+
+        <item>Red</item>
+        <item>Orange</item>
+        <item>Yellow</item>
+        <item>Green</item>
+        <item>Blue</item>
+        <item>Purple</item>
+        <item>Pink</item>
+        <item>White</item>
+        <item>Black</item>
+    </string-array>
+
+    <string-array name="map_types_array">
+        <!-- IMPORTANT: the order of the items must stay in sync with the
+        order of the enum values in MapType.java -->
+
+        <item>Normal</item>
+        <item>Satellite</item>
+        <item>Terrain</item>
+        <item>Hybrid</item>
+    </string-array>
 </resources>

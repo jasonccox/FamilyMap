@@ -1,25 +1,32 @@
 package com.jasoncarloscox.familymap.ui;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.jasoncarloscox.familymap.R;
+import com.jasoncarloscox.familymap.model.Model;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
 
+import java.util.logging.Filter;
+
 public class MainActivity extends AppCompatActivity
         implements LoginFragment.Listener{
 
-    private static boolean showingLogin = true;
+    public static final String KEY_NEEDS_REFRESH = "needs_refresh";
 
     private LoginFragment loginFragment;
     private MapFragment mapFragment;
+
+    private Model model = Model.instance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +35,7 @@ public class MainActivity extends AppCompatActivity
 
         Iconify.with(new FontAwesomeModule());
 
-        if (showingLogin) {
-            showLogin();
-        } else {
-            showMap();
-        }
+        initFragments();
     }
 
     @Override
@@ -43,13 +46,28 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        initFragments();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (data != null && data.getBooleanExtra(KEY_NEEDS_REFRESH, false)) {
+            finish();
+            startActivity(getIntent());
+        }
+    }
+
+    @Override
     public void onLoginComplete() {
         showMap();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!showingLogin) {
+        if (model.isLoggedIn()) {
             getMenuInflater().inflate(R.menu.menu_main, menu);
 
             menu.findItem(R.id.main_menu_search)
@@ -57,34 +75,37 @@ public class MainActivity extends AppCompatActivity
                             .colorRes(R.color.colorBackground)
                             .actionBarSize());
 
-            menu.findItem(R.id.main_menu_filter)
-                    .setIcon(new IconDrawable(this, FontAwesomeIcons.fa_filter)
-                            .colorRes(R.color.colorBackground)
-                            .actionBarSize());
+            MenuItem filter = menu.findItem(R.id.main_menu_filter);
+            initMenuItem(filter, FontAwesomeIcons.fa_filter, FilterActivity.class);
 
-            menu.findItem(R.id.main_menu_settings)
-                    .setIcon(new IconDrawable(this, FontAwesomeIcons.fa_gear)
-                        .colorRes(R.color.colorBackground)
-                        .actionBarSize());
+            MenuItem settings = menu.findItem(R.id.main_menu_settings);
+            initMenuItem(settings, FontAwesomeIcons.fa_gear, SettingsActivity.class);
         }
 
         return true;
     }
 
-    private void showLogin() {
-        showingLogin = true;
+    private void initFragments() {
+        if (model.isLoggedIn()) {
+            showMap();
+        } else {
+            showLogin();
+        }
+    }
 
+    private void showLogin() {
         FragmentManager fm = this.getSupportFragmentManager();
-        FragmentTransaction transaction = fm.beginTransaction();
+        FragmentTransaction transaction;
 
         Fragment existingFragment = fm.findFragmentById(R.id.main_frame);
 
         if (existingFragment instanceof LoginFragment) {
-            transaction.commit();
             return;
         } else if (existingFragment instanceof MapFragment) {
-            transaction.remove(existingFragment);
+            transaction = fm.beginTransaction().remove(existingFragment);
             mapFragment = null;
+        } else {
+            transaction = fm.beginTransaction();
         }
 
         loginFragment = LoginFragment.newInstance();
@@ -95,19 +116,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void showMap() {
-        showingLogin = false;
-
         FragmentManager fm = this.getSupportFragmentManager();
-        FragmentTransaction transaction = fm.beginTransaction();
+        FragmentTransaction transaction;
 
         Fragment existingFragment = fm.findFragmentById(R.id.main_frame);
 
         if (existingFragment instanceof MapFragment) {
-            transaction.commit();
             return;
         } else if (existingFragment instanceof LoginFragment) {
-            transaction.remove(existingFragment);
+            transaction = fm.beginTransaction().remove(existingFragment);
             loginFragment = null;
+        } else {
+            transaction = fm.beginTransaction();
         }
 
         mapFragment = MapFragment.newInstance(null);
@@ -115,5 +135,23 @@ public class MainActivity extends AppCompatActivity
         transaction.commit();
 
         invalidateOptionsMenu();
+    }
+
+    private void initMenuItem(MenuItem item, FontAwesomeIcons icon,
+                              final Class activityToStart) {
+
+        item.setIcon(new IconDrawable(this, icon)
+                .colorRes(R.color.colorBackground)
+                .actionBarSize());
+
+        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                Intent intent = new Intent(MainActivity.this, activityToStart);
+                startActivityForResult(intent, 0);
+
+                return true;
+            }
+        });
     }
 }

@@ -1,7 +1,9 @@
 package com.jasoncarloscox.familymap.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EventFilter {
@@ -12,10 +14,30 @@ public class EventFilter {
     private boolean showMale = true;
     private boolean showFemale = true;
 
+    private Map<String, Boolean> oldShowTypes = new HashMap<>();
+    private boolean oldShowMaternalSide;
+    private boolean oldShowPaternalSide;
+    private boolean oldShowMale;
+    private boolean oldShowFemale;
+
     public EventFilter(Collection<String> types) {
         for (String type : types) {
             showTypes.put(type, true);
         }
+
+        resetAltered();
+    }
+
+    public List<Event> filter(Collection<Event> events) {
+        List<Event> filtered = new ArrayList<>();
+
+        for (Event event : events) {
+            if (showEvent(event)) {
+                filtered.add(event);
+            }
+        }
+
+        return filtered;
     }
 
     /**
@@ -145,5 +167,29 @@ public class EventFilter {
      */
     public void setShowFemale(boolean showFemale) {
         this.showFemale = showFemale;
+    }
+
+    public boolean isAltered() {
+        for (String type : showTypes.keySet()) {
+            if (showTypes.get(type) != oldShowTypes.get(type)) {
+                return true;
+            }
+        }
+
+        return oldShowPaternalSide != showPaternalSide ||
+               oldShowMaternalSide != showMaternalSide ||
+               oldShowMale != showMale ||
+               oldShowFemale != showFemale;
+    }
+
+    public void resetAltered() {
+        for (String type : showTypes.keySet()) {
+            oldShowTypes.put(type, showTypes.get(type));
+        }
+
+        oldShowPaternalSide = showPaternalSide;
+        oldShowMaternalSide = showMaternalSide;
+        oldShowMale = showMale;
+        oldShowFemale = showFemale;
     }
 }

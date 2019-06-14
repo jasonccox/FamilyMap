@@ -18,25 +18,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jasoncarloscox.familymap.R;
-import com.jasoncarloscox.familymap.model.Event;
 import com.jasoncarloscox.familymap.model.Gender;
 import com.jasoncarloscox.familymap.model.Model;
 import com.jasoncarloscox.familymap.model.Person;
 import com.jasoncarloscox.familymap.model.User;
-import com.jasoncarloscox.familymap.server.GetEventsTask;
-import com.jasoncarloscox.familymap.server.GetPersonsTask;
+import com.jasoncarloscox.familymap.server.GetDataTask;
 import com.jasoncarloscox.familymap.server.LoginTask;
 import com.jasoncarloscox.familymap.server.RegisterTask;
 import com.jasoncarloscox.familymap.server.ServerProxy;
-import com.jasoncarloscox.familymap.server.request.EventsRequest;
+import com.jasoncarloscox.familymap.server.request.DataRequest;
 import com.jasoncarloscox.familymap.server.request.LoginRequest;
-import com.jasoncarloscox.familymap.server.request.PersonsRequest;
 import com.jasoncarloscox.familymap.server.request.RegisterRequest;
-import com.jasoncarloscox.familymap.server.result.EventsResult;
+import com.jasoncarloscox.familymap.server.result.ApiResult;
 import com.jasoncarloscox.familymap.server.result.LoginResult;
-import com.jasoncarloscox.familymap.server.result.PersonsResult;
-
-import java.util.Collection;
 
 /**
  * A fragment allowing users to login/register.
@@ -45,7 +39,7 @@ import java.util.Collection;
  * create an instance of this fragment.
  */
 public class LoginFragment extends Fragment implements LoginTask.Context,
-        RegisterTask.Context, GetPersonsTask.Context, GetEventsTask.Context {
+        RegisterTask.Context, GetDataTask.Context {
 
     public interface Listener {
 
@@ -134,19 +128,11 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     private Button btnLogin;
     private ProgressBar progressSpinner;
 
-    /** Whether the user is logging in (false) or registering (true) */
-    private boolean register = false;
-
+    // member variables
+    private boolean register = false; // logging in = false, registering = true
     private Model model = Model.instance();
     private User user;
-    private Collection<Event> fetchedEvents;
-    private Collection<Person> fetchedPersons;
-
     private Listener listener;
-
-    // keeping track of data fetching status
-    private boolean fetchPersonsComplete = false;
-    private boolean fetchEventsComplete = false;
 
     // keeping track of form validity
     private boolean hostValid = false;
@@ -240,50 +226,21 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     }
 
     /**
-     * Called when a GetEventsTask completes
+     * Called when a GetDataRequest completes
      *
-     * @param result the result of getting events
+     * @param result the result of getting data
      */
     @Override
-    public void onGetEventsComplete(EventsResult result) {
+    public void onGetDataComplete(ApiResult result) {
         if (result.isSuccess()) {
-            fetchedEvents = result.getEvents();
+            showProgressSpinner(false);
+            showWelcome();
+            listener.onLoginComplete();
         } else {
-            Log.e(TAG, "Failed to fetch events: " + result.getMessage());
-            Toast toast = Toast.makeText(getActivity().getApplicationContext(),
-                                         R.string.events_request_failed,
-                                         Toast.LENGTH_LONG);
-            toast.show();
-        }
-
-        fetchEventsComplete = true;
-
-        if (fetchPersonsComplete) {
-            onFetchDataComplete();
-        }
-    }
-
-    /**
-     * Called when a GetPersonsTask completes
-     *
-     * @param result the result of getting persons
-     */
-    @Override
-    public void onGetPersonsComplete(PersonsResult result) {
-        if (result.isSuccess()) {
-            fetchedPersons = result.getPersons();
-        } else {
-            Log.e(TAG, "Failed to fetch persons: " + result.getMessage());
-            Toast toast = Toast.makeText(getActivity().getApplicationContext(),
-                                         R.string.persons_request_failed,
-                                         Toast.LENGTH_LONG);
-            toast.show();
-        }
-
-        fetchPersonsComplete = true;
-
-        if (fetchEventsComplete) {
-            onFetchDataComplete();
+            Log.e(TAG, "Failed to fetch data: " + result.getMessage());
+            Toast.makeText(getActivity().getApplicationContext(),
+                    R.string.data_request_failed,
+                    Toast.LENGTH_LONG).show();
         }
     }
 
@@ -382,6 +339,9 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (count == 0 && before == 0) {
+                    return;
+                }
                 onEditHostInteraction();
             }
 
@@ -404,6 +364,9 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (count == 0 && before == 0) {
+                    return;
+                }
                 onEditPortInteraction();
             }
 
@@ -426,6 +389,9 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (count == 0 && before == 0) {
+                    return;
+                }
                 onEditUsernameInteraction();
             }
 
@@ -448,6 +414,9 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (count == 0 && before == 0) {
+                    return;
+                }
                 onEditPasswordInteraction();
             }
 
@@ -470,6 +439,9 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (count == 0 && before == 0) {
+                    return;
+                }
                 onEditConfirmPasswordInteraction();
             }
 
@@ -492,6 +464,9 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (count == 0 && before == 0) {
+                    return;
+                }
                 onEditFirstNameInteraction();
             }
 
@@ -514,6 +489,9 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (count == 0 && before == 0) {
+                    return;
+                }
                 onEditLastNameInteraction();
             }
 
@@ -536,6 +514,9 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (count == 0 && before == 0) {
+                    return;
+                }
                 onEditEmailInteraction();
             }
 
@@ -1014,13 +995,12 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
      */
     private void handleLoginSuccess(LoginResult result) {
         user.setPersonId(result.getPersonID());
-        model.setUser(user);
+        user.setAuthToken(result.getAuthToken());
+        model.login(user);
 
-        Log.i(TAG, "Starting GetPersonsTask");
-        new GetPersonsTask(this).execute(new PersonsRequest(result.getAuthToken()));
-
-        Log.i(TAG, "Starting GetEventsTask");
-        new GetEventsTask(this).execute(new EventsRequest(result.getAuthToken()));
+        Log.i(TAG, "Starting GetDataTask");
+        new GetDataTask(this, user.getPersonId())
+                .execute(new DataRequest(result.getAuthToken()));
     }
 
     /**
@@ -1072,16 +1052,6 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         toast.show();
 
         showProgressSpinner(false);
-    }
-
-    /**
-     * Called when both persons and events have been fetched.
-     */
-    private void onFetchDataComplete() {
-        model.load(fetchedPersons, user.getPersonId(), fetchedEvents);
-        showProgressSpinner(false);
-        showWelcome();
-        listener.onLoginComplete();
     }
 
     /**
