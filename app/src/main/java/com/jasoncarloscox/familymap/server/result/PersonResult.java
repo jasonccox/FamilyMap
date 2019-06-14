@@ -26,9 +26,9 @@ public class PersonResult extends ApiResult {
     private String firstName;
     private String lastName;
     private String gender;
-    private String father;
-    private String mother;
-    private String spouse;
+    private String fatherID;
+    private String motherID;
+    private String spouseID;
 
     /**
      * Creates a new error PersonResult.
@@ -47,9 +47,9 @@ public class PersonResult extends ApiResult {
         p.setFirstName(firstName);
         p.setLastName(lastName);
         p.setGender(gender);
-        p.setFatherID(father);
-        p.setMotherID(mother);
-        p.setSpouseID(spouse);
+        p.setFatherID(fatherID);
+        p.setMotherID(motherID);
+        p.setSpouseID(spouseID);
 
         return p;
     }
