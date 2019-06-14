@@ -19,6 +19,9 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".ui.SearchActivity"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
             android:name=".ui.SettingsActivity"
             android:parentActivityName=".ui.MainActivity" />
         <activity

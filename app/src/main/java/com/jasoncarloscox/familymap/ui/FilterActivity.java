@@ -140,7 +140,7 @@ public class FilterActivity extends AppCompatActivity {
 
     private void onReturnToMainActivity() {
         if (filter.isAltered()) {
-            model.refreshMarkers();
+            model.getMapState().onFilterUpdate();
             filter.resetAltered();
         }
     }

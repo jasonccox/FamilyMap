@@ -10,30 +10,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Event;
-import com.jasoncarloscox.familymap.model.EventFilter;
-import com.jasoncarloscox.familymap.model.Gender;
+import com.jasoncarloscox.familymap.model.EventMap;
 import com.jasoncarloscox.familymap.model.Model;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 import com.joanzapata.iconify.fonts.FontAwesomeModule;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A fragment displaying a map of events.
@@ -50,12 +41,13 @@ public class MapFragment extends Fragment
 
     private static final int EVENT_ICON_SIZE_DP = 30;
 
-    private GoogleMap map;
-    private TextView txtInstructions;
+    private EventMap map;
     private ImageView imgEventIcon;
 
     private Event selectedEvent;
     private Model model = Model.instance();
+
+    private boolean zoomOnMapLoad = false;
 
     public MapFragment() {
         // Required empty public constructor
@@ -84,6 +76,7 @@ public class MapFragment extends Fragment
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             selectedEvent = model.getEvent(getArguments().getString(KEY_EVENT_ID));
+            zoomOnMapLoad = true;
         }
     }
 
@@ -110,23 +103,27 @@ public class MapFragment extends Fragment
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
-        map.setOnMarkerClickListener(this);
-        map.setOnInfoWindowClickListener(this);
-
-        EventFilter filter = model.getFilter();
-
-        for (Event event : filter.filter(model.getEvents())) {
-            addEventMarker(event);
+    public void onResume() {
+        super.onResume();
+        if (model.getMapState() != null) {
+            model.getMapState().pushUpdatesToMap(map);
         }
+    }
 
-        setSelectedEvent(selectedEvent);
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        googleMap.setOnMarkerClickListener(this);
+        googleMap.setOnInfoWindowClickListener(this);
+
+        map = new EventMap(googleMap);
+        model.getMapState().pushUpdatesToMap(map);
+
+        setSelectedEvent(selectedEvent, zoomOnMapLoad);
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        setSelectedEvent((Event) marker.getTag());
+        setSelectedEvent((Event) marker.getTag(), false);
 
         return false;
     }
@@ -148,7 +145,6 @@ public class MapFragment extends Fragment
      * @param view the View containing all the components
      */
     private void initComponents(View view) {
-        txtInstructions = (TextView) view.findViewById(R.id.map_txt_instructions);
         imgEventIcon = (ImageView) view.findViewById(R.id.map_event_icon);
 
         imgEventIcon.setImageDrawable(generateMarkerIcon());
@@ -170,42 +166,15 @@ public class MapFragment extends Fragment
         }
 
         selectedEvent = model.getEvent(savedInstanceState.getString(KEY_EVENT_ID));
+        zoomOnMapLoad = false;
     }
 
-    private void addEventMarker(Event event) {
-        LatLng ll = new LatLng(event.getLatitude(), event.getLongitude());
-
-        int genderStrRes = Gender.MALE.equals(event.getPerson().getGender()) ?
-                R.string.male_short : R.string.female_short;
-        String title = getString(R.string.event_popup_title,
-                                 event.getPerson().getFirstName(),
-                                 event.getPerson().getLastName(),
-                                 getString(genderStrRes),
-                                 event.getType());
-
-        String snippet = getString(R.string.event_date_and_location, event.getYear(),
-                                   event.getCity(), event.getCountry());
-
-        Marker marker = map.addMarker(new MarkerOptions()
-                                .position(ll)
-                                .title(title)
-                                .snippet(snippet));
-        marker.setTag(event);
-        model.addMarker(marker, event);
-    }
-
-    private void setSelectedEvent(Event event) {
+    private void setSelectedEvent(Event event, boolean zoom) {
         selectedEvent = event;
 
         if (selectedEvent != null) {
-            moveCameraToEvent(selectedEvent);
-            model.getMarker(selectedEvent).showInfoWindow();
+            map.setFocusedEvent(selectedEvent, zoom);
         }
-    }
-
-    private void moveCameraToEvent(Event event) {
-        LatLng ll = new LatLng(event.getLatitude(), event.getLongitude());
-        map.moveCamera(CameraUpdateFactory.newLatLng(ll));
     }
 
     private Drawable generateMarkerIcon() {

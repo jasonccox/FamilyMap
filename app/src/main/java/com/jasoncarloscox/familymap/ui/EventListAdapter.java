@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Event;
-import com.jasoncarloscox.familymap.util.FAIconGenerator;
+import com.jasoncarloscox.familymap.util.ResourceGenerator;
 
 import java.util.List;
 
@@ -34,13 +34,13 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.View
 
             this.itemView = itemView;
 
-            imgIcon = itemView.findViewById(R.id.person_item_icon);
-            txtTitle = itemView.findViewById(R.id.person_item_title);
-            txtSubtitle = itemView.findViewById(R.id.person_item_subtitle);
+            imgIcon = itemView.findViewById(R.id.detail_item_icon);
+            txtTitle = itemView.findViewById(R.id.detail_item_title);
+            txtSubtitle = itemView.findViewById(R.id.detail_item_subtitle);
         }
 
         public void bindData(final Event event) {
-            Drawable icon = FAIconGenerator.eventIcon(itemView.getContext(),
+            Drawable icon = ResourceGenerator.eventIcon(itemView.getContext(),
                                                       ICON_SIZE_DP,
                                                       R.color.colorAccent);
             imgIcon.setImageDrawable(icon);
@@ -91,6 +91,6 @@ public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.View
 
     @Override
     public int getItemViewType(int position) {
-        return R.layout.itemview_person_details;
+        return R.layout.itemview_details;
     }
 }

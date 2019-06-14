@@ -1,6 +1,10 @@
 package com.jasoncarloscox.familymap.model;
 
+import android.content.res.Resources;
+
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.Polyline;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,10 +34,19 @@ public class Model {
     private User user = null;
     private EventFilter filter;
     private Settings settings;
-    private Map<Event, Marker> markersByEvent = new HashMap<>();
+    private SharedMapState mapState;
+    private Resources res;
 
     private Model() {
         settings = new Settings();
+    }
+
+    public void setResources(Resources res) {
+        this.res = res;
+    }
+
+    public SharedMapState getMapState() {
+        return mapState;
     }
 
     /**
@@ -55,6 +68,7 @@ public class Model {
 
         tree.load(persons, rootPersonId, events);
         filter = new EventFilter(tree.getEventTypes());
+        mapState = new SharedMapState(tree, settings, filter, res);
     }
 
     /**
@@ -65,6 +79,10 @@ public class Model {
      */
     public Person getPerson(String id) {
         return tree.getPerson(id);
+    }
+
+    public Collection<Person> getPersons() {
+        return tree.getPersons();
     }
 
     /**
@@ -91,8 +109,8 @@ public class Model {
         return tree.getEventTypes();
     }
 
-    public FamilyTree getTree() {
-        return tree;
+    public Person getRootPerson() {
+        return tree.getRootPerson();
     }
 
     public User getUser() {
@@ -115,20 +133,6 @@ public class Model {
         setUser(user);
     }
 
-    public void addMarker(Marker marker, Event event) {
-        markersByEvent.put(event, marker);
-    }
-
-    public Marker getMarker(Event event) {
-        return markersByEvent.get(event);
-    }
-
-    public void refreshMarkers() {
-        for (Event event : markersByEvent.keySet()) {
-            markersByEvent.get(event).setVisible(filter.showEvent(event));
-        }
-    }
-
     public EventFilter getFilter() {
         return filter;
     }
@@ -142,6 +146,7 @@ public class Model {
         user = null;
         filter = null;
         settings = new Settings();
+        mapState = null;
     }
 
 }

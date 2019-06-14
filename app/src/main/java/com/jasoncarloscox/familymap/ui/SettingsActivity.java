@@ -1,10 +1,9 @@
 package com.jasoncarloscox.familymap.ui;
 
-import android.content.Intent;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -54,6 +53,22 @@ public class SettingsActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onReturnToMainActivity();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        onReturnToMainActivity();
+    }
+
+    @Override
     public void onGetDataComplete(ApiResult result) {
         if (result.isSuccess()) {
             progressSpinner.setVisibility(View.GONE);
@@ -61,7 +76,8 @@ public class SettingsActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(), R.string.data_request_succeeded,
                     Toast.LENGTH_SHORT).show();
 
-            setResult(0, new Intent().putExtra(MainActivity.KEY_NEEDS_REFRESH, true));
+            model.getMapState().onFullUpdate();
+
             finish(); // return to MainActivity
         } else {
             Log.e(TAG, "Failed to fetch data: " + result.getMessage());
@@ -86,17 +102,17 @@ public class SettingsActivity extends AppCompatActivity
         LineSetting lifeLineSetting = new LineSetting(getString(
                 R.string.line_setting_label_life),
                 getString(R.string.line_setting_description_life),
-                settings.showLifeStoryLines(),
-                settings.getLifeStoryLineColor());
+                settings.showLifeLines(),
+                settings.getLifeLineColor());
         lifeLineSetting.setListener(new LineSetting.Listener() {
             @Override
             public void onCheckedChange(boolean checked) {
-                settings.setShowLifeStoryLines(checked);
+                settings.setShowLifeLines(checked);
             }
 
             @Override
             public void onColorSelected(Color color) {
-                settings.setLifeStoryLineColor(color);
+                settings.setLifeLineColor(color);
             }
         });
         lsvLifeLines.setLineSetting(lifeLineSetting);
@@ -172,5 +188,12 @@ public class SettingsActivity extends AppCompatActivity
                 finish(); // return to MainActivity
             }
         });
+    }
+
+    private void onReturnToMainActivity() {
+        if (settings.isAltered()) {
+            model.getMapState().onSettingsUpdate();
+            settings.resetAltered();
+        }
     }
 }

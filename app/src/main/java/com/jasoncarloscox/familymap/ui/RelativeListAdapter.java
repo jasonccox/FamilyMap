@@ -14,11 +14,9 @@ import android.widget.TextView;
 import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Relative;
 import com.jasoncarloscox.familymap.model.Relative.Relationship;
-import com.jasoncarloscox.familymap.util.FAIconGenerator;
+import com.jasoncarloscox.familymap.util.ResourceGenerator;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class RelativeListAdapter extends RecyclerView.Adapter<RelativeListAdapter.ViewHolder> {
 
@@ -38,13 +36,13 @@ public class RelativeListAdapter extends RecyclerView.Adapter<RelativeListAdapte
 
             this.itemView = itemView;
 
-            imgIcon = itemView.findViewById(R.id.person_item_icon);
-            txtTitle = itemView.findViewById(R.id.person_item_title);
-            txtSubtitle = itemView.findViewById(R.id.person_item_subtitle);
+            imgIcon = itemView.findViewById(R.id.detail_item_icon);
+            txtTitle = itemView.findViewById(R.id.detail_item_title);
+            txtSubtitle = itemView.findViewById(R.id.detail_item_subtitle);
         }
 
         public void bindData(final Relative relative) {
-            Drawable icon = FAIconGenerator.genderIcon(itemView.getContext(),
+            Drawable icon = ResourceGenerator.genderIcon(itemView.getContext(),
                                                        relative.getGender(),
                                                        ICON_SIZE_DP);
             imgIcon.setImageDrawable(icon);
@@ -85,7 +83,7 @@ public class RelativeListAdapter extends RecyclerView.Adapter<RelativeListAdapte
                 case DAUGHTER:
                     return res.getString(R.string.daughter);
                 default:
-                    return res.getString(R.string.unknwon);
+                    return res.getString(R.string.unknown);
             }
         }
     }
@@ -114,6 +112,6 @@ public class RelativeListAdapter extends RecyclerView.Adapter<RelativeListAdapte
 
     @Override
     public int getItemViewType(int position) {
-        return R.layout.itemview_person_details;
+        return R.layout.itemview_details;
     }
 }

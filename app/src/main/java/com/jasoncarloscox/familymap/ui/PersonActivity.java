@@ -1,27 +1,18 @@
 package com.jasoncarloscox.familymap.ui;
 
-import android.graphics.drawable.Drawable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Event;
-import com.jasoncarloscox.familymap.model.Gender;
 import com.jasoncarloscox.familymap.model.Model;
 import com.jasoncarloscox.familymap.model.Person;
-import com.jasoncarloscox.familymap.model.Relative;
-import com.jasoncarloscox.familymap.util.FAIconGenerator;
-import com.joanzapata.iconify.IconDrawable;
-import com.joanzapata.iconify.Iconify;
-import com.joanzapata.iconify.fonts.FontAwesomeIcons;
-import com.joanzapata.iconify.fonts.FontAwesomeModule;
+import com.jasoncarloscox.familymap.util.ResourceGenerator;
 
 import java.util.List;
 
@@ -144,12 +135,12 @@ public class PersonActivity extends AppCompatActivity {
         setTitle(getString(R.string.person_activity_title, person.getFirstName(),
                            person.getLastName()));
 
-        imgPerson.setImageDrawable(FAIconGenerator
+        imgPerson.setImageDrawable(ResourceGenerator
                 .genderIcon(this, person.getGender(), PERSON_ICON_SIZE_DP));
 
         txtFirstName.setText(person.getFirstName());
         txtLastName.setText(person.getLastName());
-        txtGender.setText(generateGenderString(person.getGender()));
+        txtGender.setText(ResourceGenerator.genderString(person.getGender(), getResources()));
 
         List<Event> filteredEvents = model.getFilter().filter(person.getEvents());
 
@@ -158,18 +149,6 @@ public class PersonActivity extends AppCompatActivity {
 
         recyclerFamily.setLayoutManager(new LinearLayoutManager(this));
         recyclerFamily.setAdapter(new RelativeListAdapter(person.getRelatives()));
-    }
-
-    private String generateGenderString(String gender) {
-        if (Gender.MALE.equals(gender)) {
-            return getString(R.string.male);
-        }
-
-        if (Gender.FEMALE.equals(gender)) {
-            return getString(R.string.female);
-        }
-
-        return getString(R.string.unknwon);
     }
 
     private void toggleShowEventsList() {

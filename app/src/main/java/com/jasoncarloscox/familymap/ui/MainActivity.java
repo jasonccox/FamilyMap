@@ -11,15 +11,11 @@ import android.view.MenuItem;
 
 import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Model;
-import com.joanzapata.iconify.IconDrawable;
-import com.joanzapata.iconify.Iconify;
+import com.jasoncarloscox.familymap.util.ResourceGenerator;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
-import com.joanzapata.iconify.fonts.FontAwesomeModule;
-
-import java.util.logging.Filter;
 
 public class MainActivity extends AppCompatActivity
-        implements LoginFragment.Listener{
+        implements LoginFragment.Listener {
 
     public static final String KEY_NEEDS_REFRESH = "needs_refresh";
 
@@ -33,7 +29,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Iconify.with(new FontAwesomeModule());
+        model.setResources(getResources());
 
         initFragments();
     }
@@ -53,14 +49,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data != null && data.getBooleanExtra(KEY_NEEDS_REFRESH, false)) {
-            finish();
-            startActivity(getIntent());
-        }
-    }
-
-    @Override
     public void onLoginComplete() {
         showMap();
     }
@@ -70,10 +58,8 @@ public class MainActivity extends AppCompatActivity
         if (model.isLoggedIn()) {
             getMenuInflater().inflate(R.menu.menu_main, menu);
 
-            menu.findItem(R.id.main_menu_search)
-                    .setIcon(new IconDrawable(this, FontAwesomeIcons.fa_search)
-                            .colorRes(R.color.colorBackground)
-                            .actionBarSize());
+            MenuItem search = menu.findItem(R.id.main_menu_search);
+            initMenuItem(search, FontAwesomeIcons.fa_search, SearchActivity.class);
 
             MenuItem filter = menu.findItem(R.id.main_menu_filter);
             initMenuItem(filter, FontAwesomeIcons.fa_filter, FilterActivity.class);
@@ -140,15 +126,14 @@ public class MainActivity extends AppCompatActivity
     private void initMenuItem(MenuItem item, FontAwesomeIcons icon,
                               final Class activityToStart) {
 
-        item.setIcon(new IconDrawable(this, icon)
-                .colorRes(R.color.colorBackground)
-                .actionBarSize());
+        item.setIcon(ResourceGenerator
+                .iconActionBar(this, R.color.colorBackground, icon));
 
         item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 Intent intent = new Intent(MainActivity.this, activityToStart);
-                startActivityForResult(intent, 0);
+                startActivity(intent);
 
                 return true;
             }

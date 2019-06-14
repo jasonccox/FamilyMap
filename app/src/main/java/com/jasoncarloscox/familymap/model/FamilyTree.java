@@ -61,6 +61,10 @@ public class FamilyTree {
         return personsById.get(id);
     }
 
+    protected Collection<Person> getPersons() {
+        return personsById.values();
+    }
+
     /**
      * Gets a event with the designated id.
      *
@@ -83,6 +87,10 @@ public class FamilyTree {
      */
     protected Set<String> getEventTypes() {
         return eventTypes;
+    }
+
+    protected Person getRootPerson() {
+        return rootPerson;
     }
 
     /**
