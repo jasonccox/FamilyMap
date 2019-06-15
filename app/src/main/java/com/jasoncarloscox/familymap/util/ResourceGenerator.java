@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 
 import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Gender;
+import com.jasoncarloscox.familymap.model.Relative;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.FontAwesomeIcons;
@@ -117,5 +118,46 @@ public class ResourceGenerator {
      */
     public static Drawable iconActionBar(Context context, int colorRes, FontAwesomeIcons icon) {
         return new IconDrawable(context, icon).colorRes(colorRes).actionBarSize();
+    }
+
+    /**
+     * Creates and returns a map marker icon.
+     *
+     * @param context the context
+     * @param sizeDP the size in dp of the icon
+     * @param colorRes the resource id of the color to make the icon
+     * @return a search icon
+     */
+    public static Drawable markerIcon(Context context, int sizeDP, int colorRes) {
+        IconDrawable icon = new IconDrawable(context, FontAwesomeIcons.fa_map_marker);
+        icon.colorRes(colorRes);
+        icon.sizeDp(sizeDP);
+
+        return icon;
+    }
+
+    /**
+     * @param relationship the Relationship to be represented
+     * @param res a Resources object
+     * @return a string representing the gender
+     */
+    public static String relationshipString(Relative.Relationship relationship,
+                                            Resources res) {
+        switch (relationship) {
+            case FATHER:
+                return res.getString(R.string.father);
+            case MOTHER:
+                return res.getString(R.string.mother);
+            case HUSBAND:
+                return res.getString(R.string.husband);
+            case WIFE:
+                return res.getString(R.string.wife);
+            case SON:
+                return res.getString(R.string.son);
+            case DAUGHTER:
+                return res.getString(R.string.daughter);
+            default:
+                return res.getString(R.string.unknown);
+        }
     }
 }

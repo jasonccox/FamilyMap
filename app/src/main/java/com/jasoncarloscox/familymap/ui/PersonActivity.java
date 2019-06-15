@@ -49,7 +49,7 @@ public class PersonActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        initComponents();
+        initViews();
 
         person = model.getPerson(getIntent().getExtras().getString(KEY_PERSON_ID));
 
@@ -74,10 +74,9 @@ public class PersonActivity extends AppCompatActivity {
     }
 
     /**
-     * Initializes all of the components that need to be accessed by grabbing
-     * them from the view and adding necessary listeners.
+     * Initializes all of the views that need to be accessed
      */
-    private void initComponents() {
+    private void initViews() {
         imgPerson = findViewById(R.id.person_img_person);
         txtFirstName = findViewById(R.id.person_first_name);
         txtLastName = findViewById(R.id.person_last_name);
@@ -125,6 +124,9 @@ public class PersonActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * @param person the Person whose details should be displayed
+     */
     private void setPerson(Person person) {
         this.person = person;
 
@@ -150,6 +152,10 @@ public class PersonActivity extends AppCompatActivity {
         recyclerFamily.setAdapter(new RelativeListAdapter(person.getFamily()));
     }
 
+    /**
+     * Toggles the visibility of the event list and updates the header to show
+     * its visibility
+     */
     private void toggleShowEventsList() {
         if (recyclerEvents.getVisibility() == View.VISIBLE) {
             recyclerEvents.setVisibility(View.GONE);
@@ -160,6 +166,10 @@ public class PersonActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Toggles the visibility of the family list and updates the header to show
+     * its visibility
+     */
     private void toggleShowFamilyList() {
         if (recyclerFamily.getVisibility() == View.VISIBLE) {
             recyclerFamily.setVisibility(View.GONE);

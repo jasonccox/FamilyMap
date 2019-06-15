@@ -12,10 +12,13 @@ import com.jasoncarloscox.familymap.model.Model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity displaying a list of possible ways to filter event data.
+ */
 public class FilterActivity extends AppCompatActivity {
 
     // views
-    private RecyclerView recyclerFilters;
+    private RecyclerView recycler;
 
     // member variables
     private Model model = Model.instance();
@@ -29,7 +32,7 @@ public class FilterActivity extends AppCompatActivity {
 
         setTitle(R.string.filter_activity_title);
 
-        initComponents();
+        initViews();
     }
 
     @Override
@@ -39,16 +42,19 @@ public class FilterActivity extends AppCompatActivity {
     }
 
     /**
-     * Initializes all of the components that need to be accessed by grabbing
-     * them from the view and adding necessary listeners.
+     * Initializes all of the views that need to be accessed.
      */
-    private void initComponents() {
-        recyclerFilters = findViewById(R.id.filter_recycler);
+    private void initViews() {
+        recycler = findViewById(R.id.filter_recycler);
 
-        recyclerFilters.setLayoutManager(new LinearLayoutManager(this));
-        recyclerFilters.setAdapter(new FilterListAdapter(getFilterItems()));
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        recycler.setAdapter(new FilterListAdapter(getFilterItems()));
     }
 
+    /**
+     * @return a list of FilterItems to be used with the FilterListAdapter to
+     *         display filters in the RecyclerView
+     */
     private List<FilterItem> getFilterItems() {
         List<FilterItem> items = new ArrayList<>();
 
@@ -103,6 +109,11 @@ public class FilterActivity extends AppCompatActivity {
         return items;
     }
 
+    /**
+     * @param type the type of event that this item will filter
+     * @return a FilterItem to be used with the FilterListAdapter to display
+     *         filters in the RecyclerView
+     */
     private FilterItem getEventTypeFilterItem(final String type) {
         FilterItem item = new FilterItem(getString(R.string.filter_title_type, type),
                                          getString(R.string.filter_description_type, type),

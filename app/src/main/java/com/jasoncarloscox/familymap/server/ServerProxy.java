@@ -2,6 +2,7 @@ package com.jasoncarloscox.familymap.server;
 
 import android.util.Log;
 
+import com.google.gson.JsonSyntaxException;
 import com.jasoncarloscox.familymap.server.request.ApiRequest;
 import com.jasoncarloscox.familymap.server.request.EventsRequest;
 import com.jasoncarloscox.familymap.server.request.LoginRequest;
@@ -123,7 +124,7 @@ public class ServerProxy {
             result.setSuccess(true);
             return result;
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.e(TAG, "Failed to make request: " + request.getClass().getSimpleName(), e);
 
             String msg = "Error connecting to server. Please try again later.";

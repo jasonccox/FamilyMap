@@ -17,7 +17,7 @@ import java.util.Set;
 
 class SharedMapState {
     
-    private Model model = Model.instance();
+    private Model model;
     private Resources res;
     private Set<EventMarker> markers = new HashSet<>();
     private Set<Line> lines = new HashSet<>();
@@ -35,7 +35,9 @@ class SharedMapState {
     /**
      * Creates a new SharedMapState.
      */
-    protected SharedMapState() {}
+    protected SharedMapState(Model model) {
+        this.model = model;
+    }
 
     /**
      * Updates the given map based on the current shared map state.

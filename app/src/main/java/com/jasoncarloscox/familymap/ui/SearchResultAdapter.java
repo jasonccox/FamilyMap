@@ -17,6 +17,10 @@ import com.jasoncarloscox.familymap.util.ResourceGenerator;
 
 import java.util.List;
 
+/**
+ * Adapter to display a search result (Person or Event) in the RecyclerView on
+ * the PersonActivity
+ */
 public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder> {
 
     private List<Object> results;
@@ -109,6 +113,10 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
             });
         }
 
+        /**
+         * @param dp a size in dp
+         * @return an equivalent size in pixels
+         */
         private float dpToPx(float dp) {
             return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp,
                     itemView.getResources().getDisplayMetrics());

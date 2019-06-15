@@ -45,13 +45,15 @@ class EventFilter {
                                  boolean shouldShow) {
 
         for (String type : showTypes.keySet()) {
-            if (!eventTypes.remove(type)) {
+            if (!eventTypes.contains(type)) {
                 showTypes.remove(type);
             }
         }
 
         for (String type : eventTypes) {
-            showTypes.put(type, shouldShow);
+            if (!showTypes.containsKey(type)) {
+                showTypes.put(type, shouldShow);
+            }
         }
     }
 

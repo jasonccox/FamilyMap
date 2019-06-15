@@ -17,8 +17,6 @@ import com.joanzapata.iconify.fonts.FontAwesomeIcons;
 public class MainActivity extends AppCompatActivity
         implements LoginFragment.Listener {
 
-    public static final String KEY_NEEDS_REFRESH = "needs_refresh";
-
     private LoginFragment loginFragment;
     private MapFragment mapFragment;
 
@@ -29,7 +27,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initFragments();
+        displayFragment();
     }
 
     @Override
@@ -43,41 +41,49 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        initFragments();
+        displayFragment();
     }
 
     @Override
     public void onLoginComplete() {
-        showMap();
+        displayMap();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+
+        // only display the menu when the MapFragment is showing
         if (model.isLoggedIn()) {
             getMenuInflater().inflate(R.menu.menu_main, menu);
 
             MenuItem search = menu.findItem(R.id.main_menu_search);
-            initMenuItem(search, FontAwesomeIcons.fa_search, SearchActivity.class);
+            initMenuItem(FontAwesomeIcons.fa_search, SearchActivity.class, search);
 
             MenuItem filter = menu.findItem(R.id.main_menu_filter);
-            initMenuItem(filter, FontAwesomeIcons.fa_filter, FilterActivity.class);
+            initMenuItem(FontAwesomeIcons.fa_filter, FilterActivity.class, filter);
 
             MenuItem settings = menu.findItem(R.id.main_menu_settings);
-            initMenuItem(settings, FontAwesomeIcons.fa_gear, SettingsActivity.class);
+            initMenuItem(FontAwesomeIcons.fa_gear, SettingsActivity.class, settings);
         }
 
         return true;
     }
 
-    private void initFragments() {
+    /**
+     * Determines which fragment should be shown and displays it
+     */
+    private void displayFragment() {
         if (model.isLoggedIn()) {
-            showMap();
+            displayMap();
         } else {
-            showLogin();
+            displayLogin();
         }
     }
 
-    private void showLogin() {
+    /**
+     * Removes the MapFragment (if present) and displays the LoginFragment
+     */
+    private void displayLogin() {
         FragmentManager fm = this.getSupportFragmentManager();
         FragmentTransaction transaction;
 
@@ -99,7 +105,10 @@ public class MainActivity extends AppCompatActivity
         invalidateOptionsMenu();
     }
 
-    private void showMap() {
+    /**
+     * Removes the LoginFragment (if present) and displays the MapFragment
+     */
+    private void displayMap() {
         FragmentManager fm = this.getSupportFragmentManager();
         FragmentTransaction transaction;
 
@@ -121,8 +130,16 @@ public class MainActivity extends AppCompatActivity
         invalidateOptionsMenu();
     }
 
-    private void initMenuItem(MenuItem item, FontAwesomeIcons icon,
-                              final Class activityToStart) {
+    /**
+     * Adds the icon and click listener to a MenuItem
+     *
+     * @param icon the icon for the MenuItem
+     * @param activityToStart the activity to be started when the MenuItem is
+     *                        clicked
+     * @param item the MenuItem being initialized
+     */
+    private void initMenuItem(FontAwesomeIcons icon, final Class activityToStart,
+                              MenuItem item) {
 
         item.setIcon(ResourceGenerator
                 .iconActionBar(this, R.color.colorBackground, icon));

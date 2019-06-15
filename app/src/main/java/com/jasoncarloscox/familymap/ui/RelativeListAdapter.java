@@ -18,6 +18,9 @@ import com.jasoncarloscox.familymap.util.ResourceGenerator;
 
 import java.util.List;
 
+/**
+ * Adapter to display Relatives in the RecyclerView on the PersonActivity
+ */
 public class RelativeListAdapter extends RecyclerView.Adapter<RelativeListAdapter.ViewHolder> {
 
     private List<Relative> relatives;
@@ -42,13 +45,12 @@ public class RelativeListAdapter extends RecyclerView.Adapter<RelativeListAdapte
         }
 
         public void bindData(final Relative relative) {
-            Drawable icon = ResourceGenerator.genderIcon(itemView.getContext(),
-                                                       relative.getGender(),
-                                                       ICON_SIZE_DP);
-            imgIcon.setImageDrawable(icon);
+            imgIcon.setImageDrawable(ResourceGenerator
+                    .genderIcon(itemView.getContext(), relative.getGender(), ICON_SIZE_DP));
 
             txtTitle.setText(relative.getFullName());
-            txtSubtitle.setText(relationshipString(relative.getRelationship()));
+            txtSubtitle.setText(ResourceGenerator
+                    .relationshipString(relative.getRelationship(), itemView.getResources()));
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -59,27 +61,6 @@ public class RelativeListAdapter extends RecyclerView.Adapter<RelativeListAdapte
                     itemView.getContext().startActivity(intent);
                 }
             });
-        }
-
-        private String relationshipString(Relationship relationship) {
-            Resources res = itemView.getResources();
-
-            switch (relationship) {
-                case FATHER:
-                    return res.getString(R.string.father);
-                case MOTHER:
-                    return res.getString(R.string.mother);
-                case HUSBAND:
-                    return res.getString(R.string.husband);
-                case WIFE:
-                    return res.getString(R.string.wife);
-                case SON:
-                    return res.getString(R.string.son);
-                case DAUGHTER:
-                    return res.getString(R.string.daughter);
-                default:
-                    return res.getString(R.string.unknown);
-            }
         }
     }
 

@@ -1,9 +1,12 @@
 <resources>
+    <!-- NAMES / TITLES -->
     <string name="app_name">Family Map</string>
     <string name="person_activity_title">Person Details: %s</string>
     <string name="event_activity_title">Event Details</string>
     <string name="filter_activity_title">Filter Events</string>
     <string name="settings_activity_title">Settings</string>
+
+    <!-- LOGIN/REGISTER -->
     <string name="server_address">Server Address</string>
     <string name="protocol">http://</string>
     <string name="host">hostname</string>
@@ -11,13 +14,7 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="confirm_password">Confirm Password</string>
-    <string name="first_name">First Name</string>
-    <string name="last_name">Last Name</string>
     <string name="email">Email</string>
-    <string name="male">Male</string>
-    <string name="female">Female</string>
-    <string name="male_short">M</string>
-    <string name="female_short">F</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
     <string name="not_registered">Not registered yet? Click here to sign up!</string>
@@ -25,6 +22,9 @@
     <string name="must_not_be_blank">Must not be blank</string>
     <string name="port_invalid">Invalid port number</string>
     <string name="password_must_match">Passwords must match</string>
+    <string name="invalid_email">Invalid email address</string>
+
+    <!-- ERROR/SUCCESS MESSAGES -->
     <string name="fix_invalid_fields">Please correct errors above</string>
     <string name="data_request_failed">Sorry, some or all of your data couldn\'t be retrieved. Please try again later.</string>
     <string name="data_request_succeeded">Data refreshed</string>
@@ -33,28 +33,18 @@
     <string name="wrong_password">Incorrect password</string>
     <string name="username_taken">That username has already been taken. Please choose a new one.</string>
     <string name="welcome">Welcome %s</string>
-    <string name="title_activity_maps">Map</string>
+
+    <!-- MAP -->
     <string name="click_marker_to_view_event">Click an event marker to see its details. Then click the popup window to see more info about the person.</string>
-    <string name="text_divider_horizontal">|</string>
-    <string name="location">%s, %s</string>
     <string name="event_popup_title">%s (%s) | %s</string>
     <string name="event_date_and_location">%d - %s, %s</string>
+
+    <!-- SEARCH -->
     <string name="event_result_title">%s | %s</string>
     <string name="search">Search</string>
+
+    <!-- FILTER -->
     <string name="filter">Filter</string>
-    <string name="settings">Settings</string>
-    <string name="gender">Gender</string>
-    <string name="life_events">Life Events</string>
-    <string name="family">Family Members</string>
-    <string name="expand">+</string>
-    <string name="collapse">–</string>
-    <string name="unknown">Unknown</string>
-    <string name="father">Father</string>
-    <string name="mother">Mother</string>
-    <string name="husband">Husband</string>
-    <string name="wife">Wife</string>
-    <string name="son">Son</string>
-    <string name="daughter">Daughter</string>
     <string name="filter_description_show">Show %s</string>
     <string name="filter_description_hide">Hide %s</string>
     <string name="filter_title_male">Male Events</string>
@@ -67,6 +57,9 @@
     <string name="filter_description_paternal">events from your father and his ancestors</string>
     <string name="filter_description_maternal">events from your mother and her ancestors</string>
     <string name="filter_description_type">%s events</string>
+
+    <!-- SETTINGS -->
+    <string name="settings">Settings</string>
     <string name="color">Color</string>
     <string name="line_settings_label">%s Lines</string>
     <string name="line_settings_description_show">Show lines connecting %s</string>
@@ -105,4 +98,29 @@
         <item>Terrain</item>
         <item>Hybrid</item>
     </string-array>
+
+    <!-- PERSON -->
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="gender">Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="male_short">M</string>
+    <string name="female_short">F</string>
+    <string name="life_events">Life Events</string>
+    <string name="family">Family Members</string>
+    <string name="father">Father</string>
+    <string name="mother">Mother</string>
+    <string name="husband">Husband</string>
+    <string name="wife">Wife</string>
+    <string name="son">Son</string>
+    <string name="daughter">Daughter</string>
+
+    <!-- GENERAL/MISC -->
+    <string name="text_divider_horizontal">|</string>
+    <string name="location">%s, %s</string>
+    <string name="unknown">Unknown</string>
+    <string name="expand">+</string>
+    <string name="collapse">–</string>
+
 </resources>

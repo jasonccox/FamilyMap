@@ -32,6 +32,9 @@ import com.jasoncarloscox.familymap.server.request.RegisterRequest;
 import com.jasoncarloscox.familymap.server.result.ApiResult;
 import com.jasoncarloscox.familymap.server.result.LoginResult;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * A fragment allowing users to login/register.
  *
@@ -41,6 +44,10 @@ import com.jasoncarloscox.familymap.server.result.LoginResult;
 public class LoginFragment extends Fragment implements LoginTask.Context,
         RegisterTask.Context, GetDataTask.Context {
 
+    /**
+     * Implement this interface and call setListener() in order to be notified
+     * when the login process is complete
+     */
     public interface Listener {
 
         /**
@@ -155,6 +162,10 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         return new LoginFragment();
     }
 
+    /**
+     * @param listener the Listener that will be notified when the login process
+     *                 is complete
+     */
     public void setListener(Listener listener) {
         this.listener = listener;
     }
@@ -170,7 +181,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        initComponents(view);
+        initViews(view);
         restoreState(savedInstanceState);
         setRegister(register);
 
@@ -178,48 +189,48 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putString(KEY_HOST, editHost.getText().toString());
-        savedInstanceState.putString(KEY_PORT, editPort.getText().toString());
-        savedInstanceState.putString(KEY_USERNAME, editUsername.getText().toString());
-        savedInstanceState.putString(KEY_PASSWORD, editPassword.getText().toString());
-        savedInstanceState.putString(KEY_CONFIRM_PASSWORD, editConfirmPassword.getText().toString());
-        savedInstanceState.putString(KEY_FIRST_NAME, editFirstName.getText().toString());
-        savedInstanceState.putString(KEY_LAST_NAME, editLastName.getText().toString());
-        savedInstanceState.putString(KEY_EMAIL, editEmail.getText().toString());
-        savedInstanceState.putBoolean(KEY_MALE, radioMale.hasSelection());
-        savedInstanceState.putBoolean(KEY_FEMALE, radioFemale.hasSelection());
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString(KEY_HOST, editHost.getText().toString());
+        outState.putString(KEY_PORT, editPort.getText().toString());
+        outState.putString(KEY_USERNAME, editUsername.getText().toString());
+        outState.putString(KEY_PASSWORD, editPassword.getText().toString());
+        outState.putString(KEY_CONFIRM_PASSWORD, editConfirmPassword.getText().toString());
+        outState.putString(KEY_FIRST_NAME, editFirstName.getText().toString());
+        outState.putString(KEY_LAST_NAME, editLastName.getText().toString());
+        outState.putString(KEY_EMAIL, editEmail.getText().toString());
+        outState.putBoolean(KEY_MALE, radioMale.hasSelection());
+        outState.putBoolean(KEY_FEMALE, radioFemale.hasSelection());
         
-        savedInstanceState.putBoolean(KEY_REGISTER, register);
+        outState.putBoolean(KEY_REGISTER, register);
 
-        savedInstanceState.putBoolean(KEY_VALID_HOST, hostValid);
-        savedInstanceState.putBoolean(KEY_VALID_PORT, portValid);
-        savedInstanceState.putBoolean(KEY_VALID_USERNAME, usernameValid);
-        savedInstanceState.putBoolean(KEY_VALID_PASSWORD, passwordValid);
-        savedInstanceState.putBoolean(KEY_VALID_FIRST_NAME, firstNameValid);
-        savedInstanceState.putBoolean(KEY_VALID_LAST_NAME, lastNameValid);
-        savedInstanceState.putBoolean(KEY_VALID_EMAIL, emailValid);
-        savedInstanceState.putBoolean(KEY_VALID_GENDER, genderValid);
+        outState.putBoolean(KEY_VALID_HOST, hostValid);
+        outState.putBoolean(KEY_VALID_PORT, portValid);
+        outState.putBoolean(KEY_VALID_USERNAME, usernameValid);
+        outState.putBoolean(KEY_VALID_PASSWORD, passwordValid);
+        outState.putBoolean(KEY_VALID_FIRST_NAME, firstNameValid);
+        outState.putBoolean(KEY_VALID_LAST_NAME, lastNameValid);
+        outState.putBoolean(KEY_VALID_EMAIL, emailValid);
+        outState.putBoolean(KEY_VALID_GENDER, genderValid);
         
-        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_HOST, txtErrorHost.getVisibility());
-        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_PORT, txtErrorPort.getVisibility());
-        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_USERNAME, txtErrorUsername.getVisibility());
-        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_PASSWORD, txtErrorPassword.getVisibility());
-        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_CONFIRM_PASSWORD, txtErrorConfirmPassword.getVisibility());
-        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_FIRST_NAME, txtErrorFirstName.getVisibility());
-        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_LAST_NAME, txtErrorLastName.getVisibility());
-        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_EMAIL, txtErrorEmail.getVisibility());
-        savedInstanceState.putInt(KEY_VISIBILITY_ERROR_GENDER, txtErrorGender.getVisibility());
+        outState.putInt(KEY_VISIBILITY_ERROR_HOST, txtErrorHost.getVisibility());
+        outState.putInt(KEY_VISIBILITY_ERROR_PORT, txtErrorPort.getVisibility());
+        outState.putInt(KEY_VISIBILITY_ERROR_USERNAME, txtErrorUsername.getVisibility());
+        outState.putInt(KEY_VISIBILITY_ERROR_PASSWORD, txtErrorPassword.getVisibility());
+        outState.putInt(KEY_VISIBILITY_ERROR_CONFIRM_PASSWORD, txtErrorConfirmPassword.getVisibility());
+        outState.putInt(KEY_VISIBILITY_ERROR_FIRST_NAME, txtErrorFirstName.getVisibility());
+        outState.putInt(KEY_VISIBILITY_ERROR_LAST_NAME, txtErrorLastName.getVisibility());
+        outState.putInt(KEY_VISIBILITY_ERROR_EMAIL, txtErrorEmail.getVisibility());
+        outState.putInt(KEY_VISIBILITY_ERROR_GENDER, txtErrorGender.getVisibility());
         
-        savedInstanceState.putString(KEY_MSG_ERROR_HOST, txtErrorHost.getText().toString());
-        savedInstanceState.putString(KEY_MSG_ERROR_PORT, txtErrorPort.getText().toString());
-        savedInstanceState.putString(KEY_MSG_ERROR_USERNAME, txtErrorUsername.getText().toString());
-        savedInstanceState.putString(KEY_MSG_ERROR_PASSWORD, txtErrorPassword.getText().toString());
-        savedInstanceState.putString(KEY_MSG_ERROR_CONFIRM_PASSWORD, txtErrorConfirmPassword.getText().toString());
-        savedInstanceState.putString(KEY_MSG_ERROR_FIRST_NAME, txtErrorFirstName.getText().toString());
-        savedInstanceState.putString(KEY_MSG_ERROR_LAST_NAME, txtErrorLastName.getText().toString());
-        savedInstanceState.putString(KEY_MSG_ERROR_EMAIL, txtErrorEmail.getText().toString());
-        savedInstanceState.putString(KEY_MSG_ERROR_GENDER, txtErrorGender.getText().toString());
+        outState.putString(KEY_MSG_ERROR_HOST, txtErrorHost.getText().toString());
+        outState.putString(KEY_MSG_ERROR_PORT, txtErrorPort.getText().toString());
+        outState.putString(KEY_MSG_ERROR_USERNAME, txtErrorUsername.getText().toString());
+        outState.putString(KEY_MSG_ERROR_PASSWORD, txtErrorPassword.getText().toString());
+        outState.putString(KEY_MSG_ERROR_CONFIRM_PASSWORD, txtErrorConfirmPassword.getText().toString());
+        outState.putString(KEY_MSG_ERROR_FIRST_NAME, txtErrorFirstName.getText().toString());
+        outState.putString(KEY_MSG_ERROR_LAST_NAME, txtErrorLastName.getText().toString());
+        outState.putString(KEY_MSG_ERROR_EMAIL, txtErrorEmail.getText().toString());
+        outState.putString(KEY_MSG_ERROR_GENDER, txtErrorGender.getText().toString());
     }
 
     /**
@@ -270,43 +281,41 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     }
 
     /**
-     * Initializes all of the components that need to be accessed by grabbing
-     * them from the view and adding necessary listeners.
-     *
-     * @param view the View containing all the components
+     * Initializes all of the views that need to be accessed
+     * @param parent the View containing all the components
      */
-    private void initComponents(View view) {
-        editHost = (EditText) view.findViewById(R.id.login_edit_host);
-        editPort = (EditText) view.findViewById(R.id.login_edit_port);
-        editUsername = (EditText) view.findViewById(R.id.login_edit_username);
-        editPassword = (EditText) view.findViewById(R.id.login_edit_password);
-        editConfirmPassword = (EditText) view.findViewById(R.id.login_edit_confirm_password);
-        editFirstName = (EditText) view.findViewById(R.id.login_edit_first_name);
-        editLastName = (EditText) view.findViewById(R.id.login_edit_last_name);
-        editEmail = (EditText) view.findViewById(R.id.login_edit_email);
-        radioGrpGender = (RadioGroup) view.findViewById(R.id.login_radiogrp_gender);
-        radioMale = (RadioButton) view.findViewById(R.id.login_radio_male);
-        radioFemale = (RadioButton) view.findViewById(R.id.login_radio_female);
+    private void initViews(View parent) {
+        editHost = parent.findViewById(R.id.login_edit_host);
+        editPort = parent.findViewById(R.id.login_edit_port);
+        editUsername = parent.findViewById(R.id.login_edit_username);
+        editPassword = parent.findViewById(R.id.login_edit_password);
+        editConfirmPassword = parent.findViewById(R.id.login_edit_confirm_password);
+        editFirstName = parent.findViewById(R.id.login_edit_first_name);
+        editLastName = parent.findViewById(R.id.login_edit_last_name);
+        editEmail = parent.findViewById(R.id.login_edit_email);
+        radioGrpGender = parent.findViewById(R.id.login_radiogrp_gender);
+        radioMale = parent.findViewById(R.id.login_radio_male);
+        radioFemale = parent.findViewById(R.id.login_radio_female);
 
-        txtErrorHost = (TextView) view.findViewById(R.id.login_txt_error_host);
-        txtErrorPort = (TextView) view.findViewById(R.id.login_txt_error_port);
-        txtErrorUsername = (TextView) view.findViewById(R.id.login_txt_error_username);
-        txtErrorPassword = (TextView) view.findViewById(R.id.login_txt_error_password);
-        txtErrorConfirmPassword = (TextView) view.findViewById(R.id.login_txt_error_confirm_password);
-        txtErrorFirstName = (TextView) view.findViewById(R.id.login_txt_error_first_name);
-        txtErrorLastName = (TextView) view.findViewById(R.id.login_txt_error_last_name);
-        txtErrorEmail = (TextView) view.findViewById(R.id.login_txt_error_email);
-        txtErrorGender = (TextView) view.findViewById(R.id.login_txt_error_gender);
+        txtErrorHost = parent.findViewById(R.id.login_txt_error_host);
+        txtErrorPort = parent.findViewById(R.id.login_txt_error_port);
+        txtErrorUsername = parent.findViewById(R.id.login_txt_error_username);
+        txtErrorPassword = parent.findViewById(R.id.login_txt_error_password);
+        txtErrorConfirmPassword = parent.findViewById(R.id.login_txt_error_confirm_password);
+        txtErrorFirstName = parent.findViewById(R.id.login_txt_error_first_name);
+        txtErrorLastName = parent.findViewById(R.id.login_txt_error_last_name);
+        txtErrorEmail = parent.findViewById(R.id.login_txt_error_email);
+        txtErrorGender = parent.findViewById(R.id.login_txt_error_gender);
 
-        rowConfirmPassword = (TableRow) view.findViewById(R.id.login_row_confirm_password);
-        rowFirstName = (TableRow) view.findViewById(R.id.login_row_first_name);
-        rowLastName = (TableRow) view.findViewById(R.id.login_row_last_name);
-        rowEmail = (TableRow) view.findViewById(R.id.login_row_email);
-        rowGender = (TableRow) view.findViewById(R.id.login_row_gender);
+        rowConfirmPassword = parent.findViewById(R.id.login_row_confirm_password);
+        rowFirstName = parent.findViewById(R.id.login_row_first_name);
+        rowLastName = parent.findViewById(R.id.login_row_last_name);
+        rowEmail = parent.findViewById(R.id.login_row_email);
+        rowGender = parent.findViewById(R.id.login_row_gender);
 
-        txtToggleRegister = (TextView) view.findViewById(R.id.login_txt_toggle_register);
-        btnLogin = (Button) view.findViewById(R.id.login_btn_login);
-        progressSpinner = (ProgressBar) view.findViewById(R.id.login_progress_spinner);
+        txtToggleRegister = parent.findViewById(R.id.login_txt_toggle_register);
+        btnLogin = parent.findViewById(R.id.login_btn_login);
+        progressSpinner = parent.findViewById(R.id.login_progress_spinner);
 
         txtToggleRegister.setOnClickListener(new TextView.OnClickListener() {
             @Override
@@ -890,7 +899,16 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
             return false;
         }
 
-        // TODO: check for well-formed email address
+        // credit for regex to https://howtodoinjava.com/regex/java-regex-validate-email-address/
+        String validRegex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*" +
+                            "@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+        Pattern validPattern = Pattern.compile(validRegex);
+
+        if (!validPattern.matcher(contents).matches()) {
+            txtErrorEmail.setText(R.string.invalid_email);
+            txtErrorEmail.setVisibility(View.VISIBLE);
+            return false;
+        }
 
         txtErrorEmail.setVisibility(View.GONE);
         return true;
@@ -934,7 +952,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
         initServer();
 
-        user = generateUser();
+        user = createUser();
 
         if (register) {
             Log.i(TAG, "Starting RegisterTask");
@@ -955,11 +973,11 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     }
 
     /**
-     * Generates a user based on the entry fields
+     * Creates a user based on the entry fields
      *
      * @return the generated user
      */
-    private User generateUser() {
+    private User createUser() {
         User u = new User(editUsername.getText().toString(),
                           editPassword.getText().toString());
 
@@ -1050,7 +1068,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     }
 
     /**
-     * Shows or hides the progress spinner
+     * Shows or hides the progress spinner in place of the login/register button
      *
      * @param show whether to shouldShow the spinner
      */
@@ -1070,8 +1088,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     private void showWelcome() {
         Person userPerson = model.getPerson(model.getUser().getPersonId());
 
-        String msg = getString(R.string.welcome, userPerson.getFirstName(),
-                userPerson.getLastName());
+        String msg = getString(R.string.welcome, userPerson.getFullName());
 
         Toast toast = Toast.makeText(getActivity().getApplicationContext(), msg,
                 Toast.LENGTH_SHORT);

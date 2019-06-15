@@ -15,6 +15,10 @@ import android.widget.TextView;
 import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.LineSetting;
 
+/**
+ * Custom compound view containing all the views needed to display the settings
+ * for a line type.
+ */
 public class LineSettingsView extends LinearLayout {
 
     // views
@@ -29,21 +33,28 @@ public class LineSettingsView extends LinearLayout {
     public LineSettingsView(Context context) {
         super(context);
         inflate();
-        initComponents();
+        initViews();
     }
 
     public LineSettingsView(Context context, AttributeSet attrs) {
         super(context, attrs);
         inflate();
-        initComponents();
+        initViews();
     }
 
     public LineSettingsView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         inflate();
-        initComponents();
+        initViews();
     }
 
+    /**
+     * Sets the child views to display the necessary information and perform any
+     * needed actions for the type of line it represents.
+     *
+     * @param lineSetting the LineSetting object containing all the data about
+     *                    the type of line, its color, and whether it is enabled
+     */
     public void setLineSetting(final LineSetting lineSetting) {
         this.lineSetting = lineSetting;
 
@@ -85,6 +96,9 @@ public class LineSettingsView extends LinearLayout {
         });
     }
 
+    /**
+     * Inflates the view
+     */
     private void inflate() {
         LayoutInflater inflater = (LayoutInflater)
                 getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -92,10 +106,9 @@ public class LineSettingsView extends LinearLayout {
     }
 
     /**
-     * Initializes all of the components that need to be accessed by grabbing
-     * them from the view and adding necessary listeners.
+     * Initializes all of the views that need to be accessed
      */
-    private void initComponents() {
+    private void initViews() {
         txtLabel = findViewById(R.id.line_settings_label);
         txtDescription = findViewById(R.id.line_settings_description);
         switchSetting = findViewById(R.id.line_settings_switch);
@@ -109,8 +122,14 @@ public class LineSettingsView extends LinearLayout {
         spinnerColor.setAdapter(spinnerAdapter);
     }
 
-    private void toggleDescriptionText(boolean checked) {
-        if (checked) {
+    /**
+     * Modifies the description text based on whether the line type is currently
+     * enabled or not
+     *
+     * @param enabled whether the line type is currently enabled
+     */
+    private void toggleDescriptionText(boolean enabled) {
+        if (enabled) {
             txtDescription.setText(getResources().getString(
                     R.string.line_settings_description_show,
                     lineSetting.getDescription()));

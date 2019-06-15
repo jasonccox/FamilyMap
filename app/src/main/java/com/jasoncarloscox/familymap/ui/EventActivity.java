@@ -10,6 +10,9 @@ import com.jasoncarloscox.familymap.R;
 import com.jasoncarloscox.familymap.model.Event;
 import com.jasoncarloscox.familymap.model.Model;
 
+/**
+ * Displays an event via the MapFragment
+ */
 public class EventActivity extends AppCompatActivity {
 
     // keys
@@ -35,6 +38,9 @@ public class EventActivity extends AppCompatActivity {
         showMap();
     }
 
+    /**
+     * Adds the map fragment to the activity
+     */
     private void showMap() {
         FragmentManager fm = this.getSupportFragmentManager();
         mapFragment = (MapFragment) fm.findFragmentById(R.id.event_frame);

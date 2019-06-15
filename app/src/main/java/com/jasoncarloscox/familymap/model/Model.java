@@ -30,8 +30,7 @@ public class Model {
     private User user = null;
     private EventFilter filter = new EventFilter();
     private Settings settings;
-    private SharedMapState mapState;
-    private Resources res;
+    private SharedMapState mapState = new SharedMapState(this);
 
     /**
      * Creates a new Model.
@@ -55,7 +54,7 @@ public class Model {
         clear();
         filter = new EventFilter();
         settings = new Settings();
-        mapState = new SharedMapState();
+        mapState = new SharedMapState(this);
     }
 
     /**
@@ -168,8 +167,8 @@ public class Model {
         Set<Object> results = new HashSet<>();
 
         for (String word : query.toLowerCase().split("\\W")) {
-            results.add(searchPersonAndAncestors(word, getRootPerson()));
-            results.add(searchPersonAndAncestors(word, getRootPerson().getSpouse()));
+            results.addAll(searchPersonAndAncestors(word, getRootPerson()));
+            results.addAll(searchPersonAndAncestors(word, getRootPerson().getSpouse()));
         }
 
         List<Object> resultList = new ArrayList<>();
@@ -492,5 +491,17 @@ public class Model {
         }
 
         return false;
+    }
+
+    /**
+     * Only to be used from tests!
+     *
+     * Gets a new Model instance. Future calls to instance() will return this
+     * new instance
+     */
+    protected static Model newInstance() {
+        instance = new Model();
+
+        return instance;
     }
 }

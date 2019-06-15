@@ -14,6 +14,9 @@ import com.jasoncarloscox.familymap.model.FilterItem;
 
 import java.util.List;
 
+/**
+ * Adapter to display FilterItems in the RecyclerView on the FilterActivity
+ */
 public class FilterListAdapter extends RecyclerView.Adapter<FilterListAdapter.ViewHolder> {
 
     private List<FilterItem> items;

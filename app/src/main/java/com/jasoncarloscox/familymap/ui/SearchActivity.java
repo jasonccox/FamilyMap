@@ -11,14 +11,14 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.jasoncarloscox.familymap.R;
-import com.jasoncarloscox.familymap.model.Event;
 import com.jasoncarloscox.familymap.model.Model;
-import com.jasoncarloscox.familymap.model.Person;
 import com.jasoncarloscox.familymap.util.ResourceGenerator;
 
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity displaying a search box and the results of the search
+ */
 public class SearchActivity extends AppCompatActivity {
 
     private static final String KEY_QUERY = "query";
@@ -42,7 +42,7 @@ public class SearchActivity extends AppCompatActivity {
 
         setTitle(R.string.search);
 
-        initComponents();
+        initViews();
         restoreState(savedInstanceState);
 
         if (showResults) {
@@ -70,10 +70,9 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     /**
-     * Initializes all of the components that need to be accessed by grabbing
-     * them from the view and adding necessary listeners.
+     * Initializes all of the views that need to be accessed
      */
-    private void initComponents() {
+    private void initViews() {
         editQuery = findViewById(R.id.search_query);
         btnSearch = findViewById(R.id.search_btn);
         recycler = findViewById(R.id.search_recycler);
@@ -97,17 +96,25 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Performs a search and displays the results
+     * @param query the search query
+     */
+    private void search(String query) {
+        List<Object> results = model.searchPersonsAndEvents(query);
+
+        displaySearchResults(results);
+    }
+
+    /**
+     * Displays the search results on the Activity
+     * @param results the results (Persons and Events) to be displayed
+     */
     private void displaySearchResults(List<Object> results) {
         showResults = true;
 
         recycler.setVisibility(View.VISIBLE);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setAdapter(new SearchResultAdapter(results));
-    }
-
-    private void search(String query) {
-        List<Object> results = model.searchPersonsAndEvents(query);
-
-        displaySearchResults(results);
     }
 }

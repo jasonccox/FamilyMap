@@ -65,10 +65,9 @@ public class EventMap {
      * Focuses the map view on the given Event.
      *
      * @param focused the Event on which to focus
-     * @param zoom whether to zoom in on the Event
      */
-    public void setFocusedEvent(Event focused, boolean zoom) {
-        moveCameraToEvent(focused, zoom);
+    public void setFocusedEvent(Event focused) {
+        moveCameraToEvent(focused);
         markersByEvent.get(focused).showInfoWindow();
     }
 
@@ -138,17 +137,12 @@ public class EventMap {
      * Focuses the camera on a given Event.
      *
      * @param event the Event on which to focus
-     * @param zoom whether to zoom in on the Event
      */
-    private void moveCameraToEvent(Event event, boolean zoom) {
+    private void moveCameraToEvent(Event event) {
         final float ZOOM = 3;
 
         LatLng ll = new LatLng(event.getLatitude(), event.getLongitude());
 
-        if (zoom) {
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(ll, ZOOM));
-        } else {
-            map.moveCamera(CameraUpdateFactory.newLatLng(ll));
-        }
+        map.moveCamera(CameraUpdateFactory.newLatLng(ll));
     }
 }

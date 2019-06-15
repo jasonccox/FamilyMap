@@ -19,6 +19,9 @@ import com.jasoncarloscox.familymap.server.GetDataTask;
 import com.jasoncarloscox.familymap.server.request.DataRequest;
 import com.jasoncarloscox.familymap.server.result.ApiResult;
 
+/**
+ * Activity to display the app's settings
+ */
 public class SettingsActivity extends AppCompatActivity
         implements GetDataTask.Context{
 
@@ -45,10 +48,10 @@ public class SettingsActivity extends AppCompatActivity
 
         setTitle(R.string.settings_activity_title);
 
-        initComponents();
+        initViews();
     }
 
-    @Override
+    @Override // from GetDataTask.Context
     public void onGetDataComplete(ApiResult result) {
         if (result.isSuccess()) {
             progressSpinner.setVisibility(View.GONE);
@@ -65,17 +68,60 @@ public class SettingsActivity extends AppCompatActivity
     }
 
     /**
-     * Initializes all of the components that need to be accessed by grabbing
-     * them from the view and adding necessary listeners.
+     * Initializes all of the views that need to be accessed
      */
-    private void initComponents() {
-        lsvLifeLines = findViewById(R.id.settings_life_lines);
-        lsvTreeLines = findViewById(R.id.settings_tree_lines);
-        lsvSpouseLines = findViewById(R.id.settings_spouse_lines);
+    private void initViews() {
+        initLineSettings();
+
         spinnerMapType = findViewById(R.id.settings_map_type_spinner);
         txtSync = findViewById(R.id.settings_sync);
         txtLogout = findViewById(R.id.settings_logout);
         progressSpinner = findViewById(R.id.settings_progress_spinner);
+
+        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.map_types_array,
+                android.R.layout.simple_spinner_item);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMapType.setAdapter(spinnerAdapter);
+        spinnerMapType.setSelection(model.getMapType().ordinal());
+        spinnerMapType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                model.setMapType(EventMap.Type.values()[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        txtSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                progressSpinner.setVisibility(View.VISIBLE);
+
+                Log.i(TAG, "Starting GetDataTask");
+                new GetDataTask(SettingsActivity.this, model.getUser().getPersonId())
+                        .execute(new DataRequest(model.getUser().getAuthToken()));
+            }
+        });
+
+        txtLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                model.logout();
+                finish(); // return to MainActivity
+            }
+        });
+    }
+
+    /**
+     * Initializes the views displaying the settings for lines on the map
+     */
+    private void initLineSettings() {
+        lsvLifeLines = findViewById(R.id.settings_life_lines);
+        lsvTreeLines = findViewById(R.id.settings_tree_lines);
+        lsvSpouseLines = findViewById(R.id.settings_spouse_lines);
 
         LineSetting lifeLineSetting = new LineSetting(getString(
                 R.string.line_setting_label_life),
@@ -130,41 +176,5 @@ public class SettingsActivity extends AppCompatActivity
             }
         });
         lsvSpouseLines.setLineSetting(spouseLineSetting);
-
-        ArrayAdapter<CharSequence> spinnerAdapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.map_types_array,
-                android.R.layout.simple_spinner_item);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerMapType.setAdapter(spinnerAdapter);
-        spinnerMapType.setSelection(model.getMapType().ordinal());
-        spinnerMapType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                model.setMapType(EventMap.Type.values()[position]);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        txtSync.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressSpinner.setVisibility(View.VISIBLE);
-
-                Log.i(TAG, "Starting GetDataTask");
-                new GetDataTask(SettingsActivity.this, model.getUser().getPersonId())
-                        .execute(new DataRequest(model.getUser().getAuthToken()));
-            }
-        });
-
-        txtLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                model.logout();
-                finish(); // return to MainActivity
-            }
-        });
     }
 }

@@ -16,6 +16,9 @@ import com.jasoncarloscox.familymap.util.ResourceGenerator;
 
 import java.util.List;
 
+/**
+ * Adapter to display events in the RecyclerView on the PersonActivity
+ */
 public class EventListAdapter extends RecyclerView.Adapter<EventListAdapter.ViewHolder> {
 
     private List<Event> events;

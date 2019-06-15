@@ -11,10 +11,12 @@ import static org.junit.Assert.*;
 
 public class PersonTest {
 
+    private Model model;
     private Person person;
 
     @Before
     public void setup() {
+        model = Model.newInstance();
         person = new Person("pid");
     }
 
@@ -115,17 +117,19 @@ public class PersonTest {
         person.addEvent(third);
         person.addEvent(first);
 
-        Set<String> setBD = new HashSet<>();
-        setBD.add("baptism");
-        setBD.add("death");
+        Set<Event> events = new HashSet<>();
+        events.add(first);
+        events.add(second);
+        events.add(third);
 
-        EventFilter filter = new EventFilter(setBD);
+        model.load(null, null, events);
+        model.setShouldShow("marriage", false);
 
-        assertEquals(second, person.getFirstEvent(filter));
+        assertEquals(second, person.getFirstEvent());
     }
 
     @Test
-    public void getFirstEventReturnsFirstEventIfNullFilter() {
+    public void getFirstEventReturnsFirstEventIfNoFilter() {
         Event first = new Event("first");
         first.setType("marriage");
         first.setYear(1);
@@ -142,7 +146,14 @@ public class PersonTest {
         person.addEvent(third);
         person.addEvent(first);
 
-        assertEquals(first, person.getFirstEvent(null));
+        Set<Event> events = new HashSet<>();
+        events.add(first);
+        events.add(second);
+        events.add(third);
+
+        model.load(null, null, events);
+
+        assertEquals(first, person.getFirstEvent());
     }
 
     @Test
