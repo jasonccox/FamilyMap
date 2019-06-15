@@ -1,12 +1,17 @@
 package com.jasoncarloscox.familymap.model;
 
+import com.google.android.gms.maps.model.Polyline;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class EventFilter {
+/**
+ * Stores information about which events should be displayed.
+ */
+class EventFilter {
 
     private Map<String, Boolean> showTypes = new HashMap<>();
     private boolean showMaternalSide = true;
@@ -14,25 +19,53 @@ public class EventFilter {
     private boolean showMale = true;
     private boolean showFemale = true;
 
+    // track old values to know when changes have been made
     private Map<String, Boolean> oldShowTypes = new HashMap<>();
     private boolean oldShowMaternalSide;
     private boolean oldShowPaternalSide;
     private boolean oldShowMale;
     private boolean oldShowFemale;
 
-    public EventFilter(Collection<String> types) {
-        for (String type : types) {
-            showTypes.put(type, true);
-        }
-
+    /**
+     * Creates a new Event filter with all events shown by default.
+     */
+    protected EventFilter() {
         resetAltered();
     }
 
-    public List<Event> filter(Collection<Event> events) {
+    /**
+     * Sets the given types as the list of filterable event types. If any of the
+     * given types are already filterable, their status will not be changed. Any
+     * event types not given will be removed.
+     *
+     * @param eventTypes a collection of event types to be shown/hidden
+     * @param shouldShow whether to show the events of the given types by default
+     */
+    protected void setEventTypes(Collection<String> eventTypes,
+                                 boolean shouldShow) {
+
+        for (String type : showTypes.keySet()) {
+            if (!eventTypes.remove(type)) {
+                showTypes.remove(type);
+            }
+        }
+
+        for (String type : eventTypes) {
+            showTypes.put(type, shouldShow);
+        }
+    }
+
+    /**
+     * Reduces a Collection of Events to a List of Events that match the filter.
+     *
+     * @param events the Events to be filtered
+     * @return the Events that should be displayed
+     */
+    protected List<Event> filter(Collection<Event> events) {
         List<Event> filtered = new ArrayList<>();
 
         for (Event event : events) {
-            if (showEvent(event)) {
+            if (shouldShow(event)) {
                 filtered.add(event);
             }
         }
@@ -46,17 +79,16 @@ public class EventFilter {
      * @param event an event
      * @return whether the given event should be shown
      */
-    public boolean showEvent(Event event) {
-
-        if (!showPaternalSide && !showMaternalSide) {
-            return false;
-        }
-
-        if (!showMale && !showFemale) {
-            return false;
-        }
-
+    protected boolean shouldShow(Event event) {
         Person eventPerson = event.getPerson();
+
+        if (!showMale && eventPerson.getGender().equals(Gender.MALE)) {
+            return false;
+        }
+
+        if (!showFemale && eventPerson.getGender().equals(Gender.FEMALE)) {
+            return false;
+        }
 
         // the rootPerson will be on both paternal and maternal side, so we need
         // to account for that special case
@@ -71,15 +103,7 @@ public class EventFilter {
             return false;
         }
 
-        if (!showMale && eventPerson.getGender().equals(Gender.MALE)) {
-            return false;
-        }
-
-        if (!showFemale && eventPerson.getGender().equals(Gender.FEMALE)) {
-            return false;
-        }
-
-        if (!showType(event.getType())) {
+        if (!shouldShow(event.getType())) {
             return false;
         }
 
@@ -88,88 +112,92 @@ public class EventFilter {
 
     /**
      * Determines whether an event type should be shown based on the current
-     * filters.
+     * filters. Event types that the filter doesn't recognize return true;
      *
-     * @param type an event type
+     * @param eventType an event type
      * @return whether events of the given type should be shown
      */
-    public boolean showType(String type) {
-        if (!showTypes.containsKey(type)) {
-            return false;
+    protected boolean shouldShow(String eventType) {
+        if (!showTypes.containsKey(eventType)) {
+            return true;
         }
 
-        return showTypes.get(type);
+        return showTypes.get(eventType);
     }
 
     /**
      * Set whether events of a given type should be shown.
      *
-     * @param type and event type
-     * @param showType whether to show events of the given type
+     * @param eventType and event type
+     * @param shouldShow whether to show events of the given type
      */
-    public void setShowType(String type, boolean showType) {
-        showTypes.put(type, showType);
+    protected void setShouldShow(String eventType, boolean shouldShow) {
+        showTypes.put(eventType, shouldShow);
     }
 
     /**
      * @return whether events on rootPerson's maternal side should be shown
      */
-    public boolean showMaternalSide() {
+    protected boolean shouldShowMaternalSide() {
         return showMaternalSide;
     }
 
     /**
-     * @param showMaternalSide whether events on rootPerson's maternal side
-     *                         should be shown
+     * @param shouldShow whether events on rootPerson's maternal side
+     *                   should be shown
      */
-    public void setShowMaternalSide(boolean showMaternalSide) {
-        this.showMaternalSide = showMaternalSide;
+    protected void setShouldShowMaternalSide(boolean shouldShow) {
+        this.showMaternalSide = shouldShow;
     }
 
     /**
      * @return whether events on rootPerson's paternal side should be shown
      */
-    public boolean showPaternalSide() {
+    protected boolean shouldShowPaternalSide() {
         return showPaternalSide;
     }
 
     /**
-     * @param showPaternalSide whether events on rootPerson's paternal side
-     *                         should be shown
+     * @param shouldShow whether events on rootPerson's paternal side
+     *                   should be shown
      */
-    public void setShowPaternalSide(boolean showPaternalSide) {
-        this.showPaternalSide = showPaternalSide;
+    protected void setShouldShowPaternalSide(boolean shouldShow) {
+        this.showPaternalSide = shouldShow;
     }
 
     /**
      * @return whether male events should be shown
      */
-    public boolean showMale() {
+    protected boolean shouldShowMale() {
         return showMale;
     }
 
     /**
-     * @param showMale whether male events should be shown
+     * @param shouldShow whether male events should be shown
      */
-    public void setShowMale(boolean showMale) {
-        this.showMale = showMale;
+    protected void setShouldShowMale(boolean shouldShow) {
+        this.showMale = shouldShow;
     }
 
     /**
      * @return whether female events should be shown
      */
-    public boolean showFemale() {
+    protected boolean shouldShowFemale() {
         return showFemale;
     }
 
     /**
-     * @param showFemale whether female events should be shown
+     * @param shouldShow whether female events should be shown
      */
-    public void setShowFemale(boolean showFemale) {
-        this.showFemale = showFemale;
+    protected void setShouldShowFemale(boolean shouldShow) {
+        this.showFemale = shouldShow;
     }
 
-    public boolean isAltered() {
+    /**
+     * @return whether any of the filters have been altered since resetAltered()
+     *         was last called
+     */
+    protected boolean isAltered() {
         for (String type : showTypes.keySet()) {
             if (showTypes.get(type) != oldShowTypes.get(type)) {
                 return true;
@@ -182,7 +210,11 @@ public class EventFilter {
                oldShowFemale != showFemale;
     }
 
-    public void resetAltered() {
+    /**
+     * Sets the filter's current state as the base line for determining if it
+     * has been altered.
+     */
+    protected void resetAltered() {
         for (String type : showTypes.keySet()) {
             oldShowTypes.put(type, showTypes.get(type));
         }

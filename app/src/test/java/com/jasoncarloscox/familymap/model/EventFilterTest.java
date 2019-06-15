@@ -52,32 +52,32 @@ public class EventFilterTest {
     @Test
     public void showEventReturnsTrueForAllEventsByDefault() {
         for (Event event : events) {
-            assertTrue(filter.showEvent(event));
+            assertTrue(filter.shouldShow(event));
         }
     }
 
     @Test
     public void showEventFiltersByPaternalSide() {
-        filter.setShowPaternalSide(false);
+        filter.setShouldShowPaternalSide(false);
 
         for (Event event : events) {
             if (event.getPerson().isPaternalSide()) {
-                assertFalse(filter.showEvent(event));
+                assertFalse(filter.shouldShow(event));
             } else {
-                assertTrue(filter.showEvent(event));
+                assertTrue(filter.shouldShow(event));
             }
         }
     }
 
     @Test
     public void showEventFiltersByMaternalSide() {
-        filter.setShowMaternalSide(false);
+        filter.setShouldShowMaternalSide(false);
 
         for (Event event : events) {
             if (event.getPerson().isMaternalSide()) {
-                assertFalse(filter.showEvent(event));
+                assertFalse(filter.shouldShow(event));
             } else {
-                assertTrue(filter.showEvent(event));
+                assertTrue(filter.shouldShow(event));
             }
         }
     }
@@ -85,74 +85,74 @@ public class EventFilterTest {
     @Test
     public void showEventFiltersBySideCorrectlyIfOnBothSides() {
         // if an event belongs to the root person, who is on both the paternal
-        // and maternal sides, it should be shown if either showMaternalSide or
-        // showPaternalSide is true
+        // and maternal sides, it should be shown if either shouldShowMaternalSide or
+        // shouldShowPaternalSide is true
 
         Event bothSides = generateEvent(events.get(0).getType(), true, true, Gender.MALE);
 
-        filter.setShowPaternalSide(false);
-        filter.setShowMaternalSide(true);
+        filter.setShouldShowPaternalSide(false);
+        filter.setShouldShowMaternalSide(true);
 
-        assertTrue(filter.showEvent(bothSides));
+        assertTrue(filter.shouldShow(bothSides));
 
-        filter.setShowPaternalSide(true);
-        filter.setShowMaternalSide(false);
+        filter.setShouldShowPaternalSide(true);
+        filter.setShouldShowMaternalSide(false);
 
-        assertTrue(filter.showEvent(bothSides));
+        assertTrue(filter.shouldShow(bothSides));
 
-        filter.setShowPaternalSide(false);
-        filter.setShowMaternalSide(false);
+        filter.setShouldShowPaternalSide(false);
+        filter.setShouldShowMaternalSide(false);
 
-        assertFalse(filter.showEvent(bothSides));
+        assertFalse(filter.shouldShow(bothSides));
     }
 
     @Test
     public void showEventFiltersByMale() {
-        filter.setShowMale(false);
+        filter.setShouldShowMale(false);
 
         for (Event event : events) {
             if (Gender.MALE.equals(event.getPerson().getGender())) {
-                assertFalse(filter.showEvent(event));
+                assertFalse(filter.shouldShow(event));
             } else {
-                assertTrue(filter.showEvent(event));
+                assertTrue(filter.shouldShow(event));
             }
         }
     }
 
     @Test
     public void showEventFiltersByFemale() {
-        filter.setShowFemale(false);
+        filter.setShouldShowFemale(false);
 
         for (Event event : events) {
             if (Gender.FEMALE.equals(event.getPerson().getGender())) {
-                assertFalse(filter.showEvent(event));
+                assertFalse(filter.shouldShow(event));
             } else {
-                assertTrue(filter.showEvent(event));
+                assertTrue(filter.shouldShow(event));
             }
         }
     }
 
     @Test
     public void showEventFiltersByType() {
-        filter.setShowType("birth", false);
-        filter.setShowType("death", true);
+        filter.setShouldShow("birth", false);
+        filter.setShouldShow("death", true);
 
         for (Event event : events) {
             if ("birth".equals(event.getType())) {
-                assertFalse(filter.showEvent(event));
+                assertFalse(filter.shouldShow(event));
             } else {
-                assertTrue(filter.showEvent(event));
+                assertTrue(filter.shouldShow(event));
             }
         }
 
-        filter.setShowType("birth", true);
-        filter.setShowType("death", false);
+        filter.setShouldShow("birth", true);
+        filter.setShouldShow("death", false);
 
         for (Event event : events) {
             if ("death".equals(event.getType())) {
-                assertFalse(filter.showEvent(event));
+                assertFalse(filter.shouldShow(event));
             } else {
-                assertTrue(filter.showEvent(event));
+                assertTrue(filter.shouldShow(event));
             }
         }
     }
@@ -169,7 +169,7 @@ public class EventFilterTest {
         events.add(event1);
         events.add(event2);
 
-        filter.setShowType("birth", false);
+        filter.setShouldShow("birth", false);
 
         Collection<Event> filteredEvents = filter.filter(events);
 
@@ -197,39 +197,39 @@ public class EventFilterTest {
     
     @Test
     public void detectsAlteration() {
-        filter.setShowPaternalSide(!filter.showPaternalSide());
+        filter.setShouldShowPaternalSide(!filter.shouldShowPaternalSide());
         assertTrue(filter.isAltered());
-        filter.setShowPaternalSide(!filter.showPaternalSide());
+        filter.setShouldShowPaternalSide(!filter.shouldShowPaternalSide());
         assertFalse(filter.isAltered());
 
-        filter.setShowMaternalSide(!filter.showMaternalSide());
+        filter.setShouldShowMaternalSide(!filter.shouldShowMaternalSide());
         assertTrue(filter.isAltered());
-        filter.setShowMaternalSide(!filter.showMaternalSide());
+        filter.setShouldShowMaternalSide(!filter.shouldShowMaternalSide());
         assertFalse(filter.isAltered());
 
-        filter.setShowMale(!filter.showMale());
+        filter.setShouldShowMale(!filter.shouldShowMale());
         assertTrue(filter.isAltered());
-        filter.setShowMale(!filter.showMale());
+        filter.setShouldShowMale(!filter.shouldShowMale());
         assertFalse(filter.isAltered());
 
-        filter.setShowFemale(!filter.showFemale());
+        filter.setShouldShowFemale(!filter.shouldShowFemale());
         assertTrue(filter.isAltered());
-        filter.setShowFemale(!filter.showFemale());
+        filter.setShouldShowFemale(!filter.shouldShowFemale());
         assertFalse(filter.isAltered());
         
-        filter.setShowType("birth", !filter.showType("birth"));
+        filter.setShouldShow("birth", !filter.shouldShow("birth"));
         assertTrue(filter.isAltered());
-        filter.setShowType("birth", !filter.showType("birth"));
+        filter.setShouldShow("birth", !filter.shouldShow("birth"));
         assertFalse(filter.isAltered());
     }
     
     @Test
     public void resetAlteredResets() {
-        filter.setShowPaternalSide(!filter.showPaternalSide());
-        filter.setShowMaternalSide(!filter.showMaternalSide());
-        filter.setShowMale(!filter.showMale());
-        filter.setShowFemale(!filter.showFemale());
-        filter.setShowType("birth", !filter.showType("birth"));
+        filter.setShouldShowPaternalSide(!filter.shouldShowPaternalSide());
+        filter.setShouldShowMaternalSide(!filter.shouldShowMaternalSide());
+        filter.setShouldShowMale(!filter.shouldShowMale());
+        filter.setShouldShowFemale(!filter.shouldShowFemale());
+        filter.setShouldShow("birth", !filter.shouldShow("birth"));
 
         filter.resetAltered();
         

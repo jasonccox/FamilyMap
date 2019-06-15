@@ -132,8 +132,7 @@ public class PersonActivity extends AppCompatActivity {
             return;
         }
 
-        setTitle(getString(R.string.person_activity_title, person.getFirstName(),
-                           person.getLastName()));
+        setTitle(getString(R.string.person_activity_title, person.getFullName()));
 
         imgPerson.setImageDrawable(ResourceGenerator
                 .genderIcon(this, person.getGender(), PERSON_ICON_SIZE_DP));
@@ -142,13 +141,13 @@ public class PersonActivity extends AppCompatActivity {
         txtLastName.setText(person.getLastName());
         txtGender.setText(ResourceGenerator.genderString(person.getGender(), getResources()));
 
-        List<Event> filteredEvents = model.getFilter().filter(person.getEvents());
+        List<Event> filteredEvents = model.filter(person.getEvents());
 
         recyclerEvents.setLayoutManager(new LinearLayoutManager(this));
         recyclerEvents.setAdapter(new EventListAdapter(filteredEvents));
 
         recyclerFamily.setLayoutManager(new LinearLayoutManager(this));
-        recyclerFamily.setAdapter(new RelativeListAdapter(person.getRelatives()));
+        recyclerFamily.setAdapter(new RelativeListAdapter(person.getFamily()));
     }
 
     private void toggleShowEventsList() {

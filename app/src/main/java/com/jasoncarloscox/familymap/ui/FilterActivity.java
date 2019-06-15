@@ -1,15 +1,11 @@
 package com.jasoncarloscox.familymap.ui;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MenuItem;
-import android.view.View;
 
 import com.jasoncarloscox.familymap.R;
-import com.jasoncarloscox.familymap.model.EventFilter;
 import com.jasoncarloscox.familymap.model.FilterItem;
 import com.jasoncarloscox.familymap.model.Model;
 
@@ -23,7 +19,6 @@ public class FilterActivity extends AppCompatActivity {
 
     // member variables
     private Model model = Model.instance();
-    private EventFilter filter = model.getFilter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,22 +30,6 @@ public class FilterActivity extends AppCompatActivity {
         setTitle(R.string.filter_activity_title);
 
         initComponents();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onReturnToMainActivity();
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        onReturnToMainActivity();
     }
 
     @Override
@@ -75,44 +54,44 @@ public class FilterActivity extends AppCompatActivity {
 
         FilterItem male = new FilterItem(getString(R.string.filter_title_male),
                                          getString(R.string.filter_description_male),
-                                         filter.showMale());
+                                         model.shouldShowMale());
         male.setListener(new FilterItem.Listener() {
             @Override
-            public void onCheckedChange(boolean checked) {
-                filter.setShowMale(checked);
+            public void onFilterStatusChange(boolean filtered) {
+                model.setShouldShowMale(filtered);
             }
         });
         items.add(male);
 
         FilterItem female = new FilterItem(getString(R.string.filter_title_female),
                                            getString(R.string.filter_description_female),
-                                           filter.showFemale());
+                                           model.shouldShowFemale());
         female.setListener(new FilterItem.Listener() {
             @Override
-            public void onCheckedChange(boolean checked) {
-                filter.setShowFemale(checked);
+            public void onFilterStatusChange(boolean filtered) {
+                model.setShouldShowFemale(filtered);
             }
         });
         items.add(female);
 
         FilterItem paternal = new FilterItem(getString(R.string.filter_title_paternal),
                 getString(R.string.filter_description_paternal),
-                filter.showPaternalSide());
+                model.shouldShowPaternalSide());
         paternal.setListener(new FilterItem.Listener() {
             @Override
-            public void onCheckedChange(boolean checked) {
-                filter.setShowPaternalSide(checked);
+            public void onFilterStatusChange(boolean filtered) {
+                model.setShouldShowPaternalSide(filtered);
             }
         });
         items.add(paternal);
 
         FilterItem maternal = new FilterItem(getString(R.string.filter_title_maternal),
                 getString(R.string.filter_description_maternal),
-                filter.showMaternalSide());
+                model.shouldShowMaternalSide());
         maternal.setListener(new FilterItem.Listener() {
             @Override
-            public void onCheckedChange(boolean checked) {
-                filter.setShowMaternalSide(checked);
+            public void onFilterStatusChange(boolean filtered) {
+                model.setShouldShowMaternalSide(filtered);
             }
         });
         items.add(maternal);
@@ -127,21 +106,14 @@ public class FilterActivity extends AppCompatActivity {
     private FilterItem getEventTypeFilterItem(final String type) {
         FilterItem item = new FilterItem(getString(R.string.filter_title_type, type),
                                          getString(R.string.filter_description_type, type),
-                                         filter.showType(type));
+                                         model.shouldShow(type));
         item.setListener(new FilterItem.Listener() {
             @Override
-            public void onCheckedChange(boolean checked) {
-                filter.setShowType(type, checked);
+            public void onFilterStatusChange(boolean filtered) {
+                model.setShouldShow(type, filtered);
             }
         });
 
         return item;
-    }
-
-    private void onReturnToMainActivity() {
-        if (filter.isAltered()) {
-            model.getMapState().onFilterUpdate();
-            filter.resetAltered();
-        }
     }
 }

@@ -1,7 +1,6 @@
 package com.jasoncarloscox.familymap.ui;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +13,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import com.jasoncarloscox.familymap.R;
-import com.jasoncarloscox.familymap.model.Color;
 import com.jasoncarloscox.familymap.model.LineSetting;
 
 public class LineSettingsView extends LinearLayout {
@@ -52,19 +50,19 @@ public class LineSettingsView extends LinearLayout {
         txtLabel.setText(getResources().getString(R.string.line_settings_label,
                                                   lineSetting.getType()));
 
-        switchSetting.setChecked(lineSetting.isInitiallyChecked());
+        switchSetting.setChecked(lineSetting.isInitialVisibility());
         switchSetting.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                lineSetting.getListener().onCheckedChange(isChecked);
+                lineSetting.getListener().onVisibilityChanged(isChecked);
                 spinnerColor.setEnabled(isChecked);
                 toggleDescriptionText(isChecked);
             }
         });
 
-        toggleDescriptionText(lineSetting.isInitiallyChecked());
+        toggleDescriptionText(lineSetting.isInitialVisibility());
 
-        if (lineSetting.isInitiallyChecked()) {
+        if (lineSetting.isInitialVisibility()) {
             txtDescription.setText(getResources().getString(
                     R.string.line_settings_description_show,
                     lineSetting.getDescription()));
@@ -74,12 +72,12 @@ public class LineSettingsView extends LinearLayout {
                     lineSetting.getDescription()));
         }
 
-        spinnerColor.setEnabled(lineSetting.isInitiallyChecked());
+        spinnerColor.setEnabled(lineSetting.isInitialVisibility());
         spinnerColor.setSelection(lineSetting.getInitialColor().ordinal());
         spinnerColor.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                lineSetting.getListener().onColorSelected(Color.values()[position]);
+                lineSetting.getListener().onColorSelected(LineSetting.Color.values()[position]);
             }
 
             @Override

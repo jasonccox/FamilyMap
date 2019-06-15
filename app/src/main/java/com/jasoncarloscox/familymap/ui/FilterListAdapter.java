@@ -1,6 +1,5 @@
 package com.jasoncarloscox.familymap.ui;
 
-import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -39,12 +38,12 @@ public class FilterListAdapter extends RecyclerView.Adapter<FilterListAdapter.Vi
         public void bindData(final FilterItem item, boolean altBackgound) {
             txtTitle.setText(item.getTitle());
 
-            int descriptionRes = item.isChecked() ? R.string.filter_description_show :
+            int descriptionRes = item.isInitiallyFiltered() ? R.string.filter_description_show :
                                                     R.string.filter_description_hide;
             txtDescription.setText(itemView.getResources()
                     .getString(descriptionRes, item.getDescription()));
 
-            switchFilter.setChecked(item.isChecked());
+            switchFilter.setChecked(item.isInitiallyFiltered());
             switchFilter.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -56,7 +55,7 @@ public class FilterListAdapter extends RecyclerView.Adapter<FilterListAdapter.Vi
 
                     // perform actions required by item
                     if (item.getListener() != null) {
-                        item.getListener().onCheckedChange(isChecked);
+                        item.getListener().onFilterStatusChange(isChecked);
                     }
                 }
             });

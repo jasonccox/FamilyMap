@@ -15,34 +15,43 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SharedMapState {
+class SharedMapState {
     
-    private FamilyTree tree;
-    private Settings settings;
-    private EventFilter filter;
+    private Model model = Model.instance();
     private Resources res;
     private Set<EventMarker> markers = new HashSet<>();
     private Set<Line> lines = new HashSet<>();
     private Map<String, Float> markerColors = new HashMap<>();
 
-    private Map<EventMap, UpdateTimes> mapUpdateTimes = new HashMap<>();
+    private boolean markerColorsInvalid = true;
+    private boolean markersInvalid = true;
+    private boolean linesInvalid = true;
+    private boolean mapTypeInvalid = true;
 
+    private Map<EventMap, UpdateTimes> mapUpdateTimes = new HashMap<>();
     private UpdateTimes lastStateUpdate = new UpdateTimes();
 
 
-    public SharedMapState(FamilyTree tree, Settings settings, EventFilter filter, Resources res) {
-        this.tree = tree;
-        this.settings = settings;
-        this.filter = filter;
-        this.res = res;
+    /**
+     * Creates a new SharedMapState.
+     */
+    protected SharedMapState() {}
 
-        init();
-    }
-
-    public void pushUpdatesToMap(EventMap map) {
+    /**
+     * Updates the given map based on the current shared map state.
+     *
+     * @param map the map to be updated
+     * @param res the Resources object to be used to resolve string and color
+     *            resources
+     */
+    protected void pushMapUpdatesTo(EventMap map, Resources res) {
         if (map == null) {
             return;
         }
+
+        this.res = res;
+
+        refreshInvalidData();
 
         UpdateTimes mapTimes = mapUpdateTimes.get(map);
 
@@ -62,47 +71,68 @@ public class SharedMapState {
         }
 
         if (lastStateUpdate.mapType > mapTimes.mapType) {
-            map.updateMapType(settings.getMapType());
+            map.updateMapType(model.getMapType());
             mapTimes.mapType = System.currentTimeMillis();
         }
     }
 
-    public void onFullUpdate() {
-        updateMarkerColors();
-        updateMarkers();
-        updateLines();
-        updateMapType();
+    /**
+     * Indicate that the current marker colors are no longer valid and should be
+     * updated.
+     */
+    protected void invalidateMarkerColors() {
+        markerColorsInvalid = true;
+        markersInvalid = true;
     }
 
-    public void onTreeUpdate() {
-        updateMarkerColors();
-        updateMarkers();
-        updateLines();
+    /**
+     * Indicate the the current markers are no longer valid and should be
+     * updated.
+     */
+    protected void invalidateMarkers() {
+        markersInvalid = true;
     }
 
-    public void onSettingsUpdate() {
-        if (settings.areLinesAltered()) {
+    /**
+     * Indicate that the current lines are no longer valid and should be updated.
+     */
+    protected void invalidateLines() {
+        linesInvalid = true;
+    }
+
+    /**
+     * Indicate that the current map type is invalid and should be updated.
+     */
+    protected void invalidateMapType() {
+        mapTypeInvalid = true;
+    }
+
+    private void refreshInvalidData() {
+        if (markerColorsInvalid) {
+            updateMarkerColors();
+            markerColorsInvalid = false;
+        }
+
+        if (markersInvalid) {
+            updateMarkers();
+            markersInvalid = false;
+        }
+
+        if (linesInvalid) {
             updateLines();
+            linesInvalid = false;
         }
 
-        if (settings.isMapTypeAltered()) {
+        if (mapTypeInvalid) {
             updateMapType();
+            mapTypeInvalid = false;
         }
-    }
-
-    public void onFilterUpdate() {
-        updateMarkers();
-        updateLines();
-    }
-
-    private void init() {
-        onFullUpdate();
     }
 
     private void updateMarkerColors() {
         markerColors.clear();
 
-        for (String type : tree.getEventTypes()) {
+        for (String type : model.getEventTypes()) {
             markerColors.put(type, Math.abs(Float.valueOf(type.hashCode() % 360)));
         }
     }
@@ -119,29 +149,29 @@ public class SharedMapState {
     }
 
     private void generateLines() {
-        if (settings.showLifeLines()) {
+        if (model.shouldShowLifeLines()) {
             generateLifeStoryLines();
         }
 
-        if (settings.showTreeLines()) {
+        if (model.shouldShowTreeLines()) {
             generateTreeLines();
         }
 
-        if (settings.showSpouseLines()) {
+        if (model.shouldShowSpouseLines()) {
             generateSpouseLines();
         }
     }
 
     private void generateLifeStoryLines() {
-        int color = res.getColor(settings.getLifeLineColor().getResource());
+        int color = res.getColor(model.getLifeLineColor().getResource());
 
-        for (Person person : tree.getPersons()) {
+        for (Person person : model.getPersons()) {
             generateLifeStoryLines(person, color);
         }
     }
 
     private void generateLifeStoryLines(Person person, int color) {
-        List<Event> events = filter.filter(person.getEvents());
+        List<Event> events = model.filter(person.getEvents());
 
         for (int i = 1; i < events.size(); i++) {
             lines.add(generateLine(events.get(i - 1), events.get(i),
@@ -150,16 +180,15 @@ public class SharedMapState {
     }
 
     private void generateSpouseLines() {
-        int color = res.getColor(settings.getSpouseLineColor().getResource());
+        int color = res.getColor(model.getSpouseLineColor().getResource());
 
         Set<Person> alreadyDone = new HashSet<>();
 
-        for (Person person : tree.getPersons()) {
+        for (Person person : model.getPersons()) {
             if (person.getSpouse() != null && !alreadyDone.contains(person)) {
-                Line line = generateLine(person.getFirstEvent(filter),
-                                         person.getSpouse().getFirstEvent(filter),
-                                         Line.BASE_WIDTH / 2,
-                                         color);
+                Line line = generateLine(person.getFirstEvent(),
+                                         person.getSpouse().getFirstEvent(),
+                                         Line.BASE_WIDTH / 2, color);
 
                 if (line != null) {
                     lines.add(line);
@@ -171,19 +200,16 @@ public class SharedMapState {
     }
 
     private void generateTreeLines() {
-        int color = res.getColor(settings.getTreeLineColor().getResource());
+        int color = res.getColor(model.getTreeLineColor().getResource());
 
-        generateLinesToParents(tree.getPerson(tree.getRootPerson().getId()),
-                Line.BASE_WIDTH,
-                color);
+        generateLinesToParents(model.getRootPerson(), Line.BASE_WIDTH, color);
     }
 
     private void generateLinesToParents(Person child, float width, int color) {
         if (child.getFather() != null) {
-            Line line = generateLine(child.getFirstEvent(filter),
-                                     child.getFather().getFirstEvent(filter),
-                                     width,
-                                     color);
+            Line line = generateLine(child.getFirstEvent(),
+                                     child.getFather().getFirstEvent(),
+                                     width, color);
 
             if (line != null) {
                 lines.add(line);
@@ -193,10 +219,9 @@ public class SharedMapState {
         }
 
         if (child.getMother() != null) {
-            Line line = generateLine(child.getFirstEvent(filter),
-                                     child.getMother().getFirstEvent(filter),
-                                     width,
-                                     color);
+            Line line = generateLine(child.getFirstEvent(),
+                                     child.getMother().getFirstEvent(),
+                                     width, color);
 
             if (line != null) {
                 lines.add(line);
@@ -226,8 +251,8 @@ public class SharedMapState {
     }
 
     private void generateMarkers() {
-        for (Event event : tree.getEvents()) {
-            if (filter.showEvent(event)) {
+        for (Event event : model.getEvents()) {
+            if (model.shouldShow(event)) {
                 markers.add(new EventMarker(event));
             }
         }
@@ -237,7 +262,7 @@ public class SharedMapState {
         markers.clear();
     }
 
-    public class Line {
+    class Line {
 
         private static final float BASE_WIDTH = 12; // pixels
 
@@ -258,7 +283,7 @@ public class SharedMapState {
         }
     }
 
-    public class EventMarker {
+    class EventMarker {
 
         private Event event;
         private LatLng position;
@@ -269,8 +294,7 @@ public class SharedMapState {
             this.event = event;
             position = new LatLng(event.getLatitude(), event.getLongitude());
             title = res.getString(R.string.event_popup_title,
-                    event.getPerson().getFirstName(),
-                    event.getPerson().getLastName(),
+                    event.getPerson().getFullName(),
                     ResourceGenerator.genderStringShort(event.getPerson().getGender(), res),
                     event.getType());
             snippet = res.getString(R.string.event_date_and_location, event.getYear(),

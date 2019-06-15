@@ -1,88 +1,170 @@
 package com.jasoncarloscox.familymap.model;
 
-public class Settings {
+class Settings {
 
     private boolean showLifeLines = true;
     private boolean showTreeLines = true;
     private boolean showSpouseLines = true;
-    private Color lifeLineColor = Color.BLUE;
-    private Color treeLineColor = Color.GREEN;
-    private Color spouseLineColor = Color.RED;
-    private MapType mapType = MapType.NORMAL;
+    private LineSetting.Color lifeLineColor = LineSetting.Color.BLUE;
+    private LineSetting.Color treeLineColor = LineSetting.Color.GREEN;
+    private LineSetting.Color spouseLineColor = LineSetting.Color.RED;
+    private EventMap.Type mapType = EventMap.Type.NORMAL;
 
+    // store old values to know when there are changes
     private boolean oldShowLifeLines;
     private boolean oldShowTreeLines;
     private boolean oldShowSpouseLines;
-    private Color oldLifeLineColor;
-    private Color oldTreeLineColor;
-    private Color oldSpouseLineColor;
-    private MapType oldMapType;
+    private LineSetting.Color oldLifeLineColor;
+    private LineSetting.Color oldTreeLineColor;
+    private LineSetting.Color oldSpouseLineColor;
+    private EventMap.Type oldMapType;
 
-    public Settings() {
+    protected Settings() {
         resetAltered();
     }
 
-    public boolean showLifeLines() {
+    /**
+     * @return whether lines should be shown connecting each person's life events
+     */
+    protected boolean shouldShowLifeLines() {
         return showLifeLines;
     }
 
-    public void setShowLifeLines(boolean showLifeLines) {
-        this.showLifeLines = showLifeLines;
+    /**
+     * @param shouldShow whether lines should be shown connecting each person's
+     *                   life events
+     */
+    protected void setShouldShowLifeLines(boolean shouldShow) {
+        this.showLifeLines = shouldShow;
     }
 
-    public boolean showTreeLines() {
+    /**
+     * @return whether lines should be shown connecting each person to his/her
+     *         ancestors
+     */
+    protected boolean shouldShowTreeLines() {
         return showTreeLines;
     }
 
-    public void setShowTreeLines(boolean showTreeLines) {
-        this.showTreeLines = showTreeLines;
+    /**
+     * @param shouldShow whether lines should be shown connecting each person to
+     *                   his/her ancestors
+     */
+    protected void setShouldShowTreeLines(boolean shouldShow) {
+        this.showTreeLines = shouldShow;
     }
 
-    public boolean showSpouseLines() {
+    /**
+     * @return whether lines should be shown connecting each person to his/her
+     *         spouse
+     */
+    protected boolean shouldShowSpouseLines() {
         return showSpouseLines;
     }
 
-    public void setShowSpouseLines(boolean showSpouseLines) {
-        this.showSpouseLines = showSpouseLines;
+    /**
+     * @param shouldShow whether lines should be shown connecting each person to
+     *                   his/her spouse
+     */
+    protected void setShouldShowSpouseLines(boolean shouldShow) {
+        this.showSpouseLines = shouldShow;
     }
 
-    public MapType getMapType() {
+    /**
+     * @return the type of map background to display
+     */
+    protected EventMap.Type getMapType() {
         return mapType;
     }
 
-    public void setMapType(MapType mapType) {
-        this.mapType = mapType;
+    /**
+     * @param type the type of map background to display
+     */
+    protected void setMapType(EventMap.Type type) {
+        this.mapType = type;
     }
 
-    public Color getLifeLineColor() {
+    /**
+     * @return the color with which to draw lines connecting each person's events
+     */
+    protected LineSetting.Color getLifeLineColor() {
         return lifeLineColor;
     }
 
-    public void setLifeLineColor(Color lifeLineColor) {
-        this.lifeLineColor = lifeLineColor;
+    /**
+     * @param color the color with which to draw lines connecting each person's
+     *              events
+     */
+    protected void setLifeLineColor(LineSetting.Color color) {
+        this.lifeLineColor = color;
     }
 
-    public Color getTreeLineColor() {
+    /**
+     * @return the color with which to draw lines connecting each person to his/
+     *         her ancestors
+     */
+    protected LineSetting.Color getTreeLineColor() {
         return treeLineColor;
     }
 
-    public void setTreeLineColor(Color treeLineColor) {
-        this.treeLineColor = treeLineColor;
+    /**
+     * @param color the color with which to draw lines connecting each person to
+     *              his/her ancestors
+     */
+    protected void setTreeLineColor(LineSetting.Color color) {
+        this.treeLineColor = color;
     }
 
-    public Color getSpouseLineColor() {
+    /**
+     * @return the color with which to draw lines connecting each person to his/
+     *         her spouse
+     */
+    protected LineSetting.Color getSpouseLineColor() {
         return spouseLineColor;
     }
 
-    public void setSpouseLineColor(Color spouseLineColor) {
-        this.spouseLineColor = spouseLineColor;
+    /**
+     * @param color the color with which to draw lines connecting each person to
+     *              his/her spouse
+     */
+    protected void setSpouseLineColor(LineSetting.Color color) {
+        this.spouseLineColor = color;
     }
 
-    public boolean isAltered() {
+    /**
+     * @return whether any of the settings have changed since resetAltered() was
+     *         last called
+     */
+    protected boolean isAltered() {
         return areLinesAltered() || isMapTypeAltered();
     }
 
-    public void resetAltered() {
+    /**
+     * @return whether any of the line settings have changed since resetAltered()
+     *         was last called
+     */
+    protected boolean areLinesAltered() {
+        return showLifeLines != oldShowLifeLines ||
+                showTreeLines != oldShowTreeLines ||
+                showSpouseLines != oldShowSpouseLines ||
+                treeLineColor != oldTreeLineColor ||
+                lifeLineColor != oldLifeLineColor ||
+                spouseLineColor != oldSpouseLineColor;
+    }
+
+    /**
+     * @return whether the map type setting has changed since resetAltered() was
+     *         last called
+     */
+    protected boolean isMapTypeAltered() {
+        return mapType != oldMapType;
+    }
+
+    /**
+     * Sets a new baseline from which to determine if the settings have been
+     * altered.
+     */
+    protected void resetAltered() {
         oldShowLifeLines = showLifeLines;
         oldShowTreeLines = showTreeLines;
         oldShowSpouseLines = showSpouseLines;
@@ -90,42 +172,5 @@ public class Settings {
         oldTreeLineColor = treeLineColor;
         oldSpouseLineColor = spouseLineColor;
         oldMapType = mapType;
-    }
-
-    public boolean areLinesAltered() {
-        return isLifeLineVisibilityAltered() ||
-                isTreeLineVisibilityAltered() ||
-                isSpouseLineVisibilityAltered() ||
-                isLifeLineColorAltered() ||
-                isTreeLineColorAltered() ||
-                isSpouseLineColorAltered();
-    }
-
-    public boolean isLifeLineVisibilityAltered() {
-        return showLifeLines != oldShowLifeLines;
-    }
-
-    public boolean isTreeLineVisibilityAltered() {
-        return showTreeLines != oldShowTreeLines;
-    }
-
-    public boolean isSpouseLineVisibilityAltered() {
-        return showSpouseLines != oldShowSpouseLines;
-    }
-
-    public boolean isLifeLineColorAltered() {
-        return lifeLineColor != oldLifeLineColor;
-    }
-
-    public boolean isTreeLineColorAltered() {
-        return treeLineColor != oldTreeLineColor;
-    }
-
-    public boolean isSpouseLineColorAltered() {
-        return spouseLineColor != oldSpouseLineColor;
-    }
-
-    public boolean isMapTypeAltered() {
-        return mapType != oldMapType;
     }
 }

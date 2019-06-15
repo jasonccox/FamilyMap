@@ -3,7 +3,6 @@ package com.jasoncarloscox.familymap.ui;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,11 +12,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jasoncarloscox.familymap.R;
-import com.jasoncarloscox.familymap.model.Color;
+import com.jasoncarloscox.familymap.model.EventMap;
 import com.jasoncarloscox.familymap.model.LineSetting;
-import com.jasoncarloscox.familymap.model.MapType;
 import com.jasoncarloscox.familymap.model.Model;
-import com.jasoncarloscox.familymap.model.Settings;
 import com.jasoncarloscox.familymap.server.GetDataTask;
 import com.jasoncarloscox.familymap.server.request.DataRequest;
 import com.jasoncarloscox.familymap.server.result.ApiResult;
@@ -38,7 +35,6 @@ public class SettingsActivity extends AppCompatActivity
 
     // member variables
     private Model model = Model.instance();
-    private Settings settings = model.getSettings();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,30 +49,12 @@ public class SettingsActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onReturnToMainActivity();
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-
-        onReturnToMainActivity();
-    }
-
-    @Override
     public void onGetDataComplete(ApiResult result) {
         if (result.isSuccess()) {
             progressSpinner.setVisibility(View.GONE);
 
             Toast.makeText(getApplicationContext(), R.string.data_request_succeeded,
                     Toast.LENGTH_SHORT).show();
-
-            model.getMapState().onFullUpdate();
 
             finish(); // return to MainActivity
         } else {
@@ -102,17 +80,17 @@ public class SettingsActivity extends AppCompatActivity
         LineSetting lifeLineSetting = new LineSetting(getString(
                 R.string.line_setting_label_life),
                 getString(R.string.line_setting_description_life),
-                settings.showLifeLines(),
-                settings.getLifeLineColor());
+                model.shouldShowLifeLines(),
+                model.getLifeLineColor());
         lifeLineSetting.setListener(new LineSetting.Listener() {
             @Override
-            public void onCheckedChange(boolean checked) {
-                settings.setShowLifeLines(checked);
+            public void onVisibilityChanged(boolean visible) {
+                model.setShouldShowLifeLines(visible);
             }
 
             @Override
-            public void onColorSelected(Color color) {
-                settings.setLifeLineColor(color);
+            public void onColorSelected(LineSetting.Color color) {
+                model.setLifeLineColor(color);
             }
         });
         lsvLifeLines.setLineSetting(lifeLineSetting);
@@ -120,17 +98,17 @@ public class SettingsActivity extends AppCompatActivity
         LineSetting treeLineSetting = new LineSetting(getString(
                 R.string.line_setting_label_tree),
                 getString(R.string.line_setting_description_tree),
-                settings.showTreeLines(),
-                settings.getTreeLineColor());
+                model.shouldShowTreeLines(),
+                model.getTreeLineColor());
         treeLineSetting.setListener(new LineSetting.Listener() {
             @Override
-            public void onCheckedChange(boolean checked) {
-                settings.setShowTreeLines(checked);
+            public void onVisibilityChanged(boolean visible) {
+                model.setShouldShowTreeLines(visible);
             }
 
             @Override
-            public void onColorSelected(Color color) {
-                settings.setTreeLineColor(color);
+            public void onColorSelected(LineSetting.Color color) {
+                model.setTreeLineColor(color);
             }
         });
         lsvTreeLines.setLineSetting(treeLineSetting);
@@ -138,17 +116,17 @@ public class SettingsActivity extends AppCompatActivity
         LineSetting spouseLineSetting = new LineSetting(getString(
                 R.string.line_setting_label_spouse),
                 getString(R.string.line_setting_description_spouse),
-                settings.showSpouseLines(),
-                settings.getSpouseLineColor());
+                model.shouldShowSpouseLines(),
+                model.getSpouseLineColor());
         spouseLineSetting.setListener(new LineSetting.Listener() {
             @Override
-            public void onCheckedChange(boolean checked) {
-                settings.setShowSpouseLines(checked);
+            public void onVisibilityChanged(boolean visible) {
+                model.setShouldShowSpouseLines(visible);
             }
 
             @Override
-            public void onColorSelected(Color color) {
-                settings.setSpouseLineColor(color);
+            public void onColorSelected(LineSetting.Color color) {
+                model.setSpouseLineColor(color);
             }
         });
         lsvSpouseLines.setLineSetting(spouseLineSetting);
@@ -159,11 +137,11 @@ public class SettingsActivity extends AppCompatActivity
                 android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMapType.setAdapter(spinnerAdapter);
-        spinnerMapType.setSelection(settings.getMapType().ordinal());
+        spinnerMapType.setSelection(model.getMapType().ordinal());
         spinnerMapType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                settings.setMapType(MapType.values()[position]);
+                model.setMapType(EventMap.Type.values()[position]);
             }
 
             @Override
@@ -188,12 +166,5 @@ public class SettingsActivity extends AppCompatActivity
                 finish(); // return to MainActivity
             }
         });
-    }
-
-    private void onReturnToMainActivity() {
-        if (settings.isAltered()) {
-            model.getMapState().onSettingsUpdate();
-            settings.resetAltered();
-        }
     }
 }

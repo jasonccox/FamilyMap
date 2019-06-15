@@ -68,7 +68,6 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     private static final String KEY_VALID_PORT = "valid_port";
     private static final String KEY_VALID_USERNAME = "valid_username";
     private static final String KEY_VALID_PASSWORD = "valid_password";
-    private static final String KEY_VALID_CONFIRM_PASSWORD = "valid_confirm_password";
     private static final String KEY_VALID_FIRST_NAME = "valid_first_name";
     private static final String KEY_VALID_LAST_NAME = "valid_last_name";
     private static final String KEY_VALID_EMAIL = "valid_email";
@@ -116,7 +115,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     private TextView txtErrorEmail;
     private TextView txtErrorGender;
 
-    // rows that hide/show based on whether user is registering
+    // rows that hide/shouldShow based on whether user is registering
     private TableRow rowConfirmPassword;
     private TableRow rowFirstName;
     private TableRow rowLastName;
@@ -139,7 +138,6 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     private boolean portValid = false;
     private boolean usernameValid = false;
     private boolean passwordValid = false;
-    private boolean confirmPasswordValid = false;
     private boolean firstNameValid = false;
     private boolean lastNameValid = false;
     private boolean emailValid = false;
@@ -198,7 +196,6 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         savedInstanceState.putBoolean(KEY_VALID_PORT, portValid);
         savedInstanceState.putBoolean(KEY_VALID_USERNAME, usernameValid);
         savedInstanceState.putBoolean(KEY_VALID_PASSWORD, passwordValid);
-        savedInstanceState.putBoolean(KEY_VALID_CONFIRM_PASSWORD, confirmPasswordValid);
         savedInstanceState.putBoolean(KEY_VALID_FIRST_NAME, firstNameValid);
         savedInstanceState.putBoolean(KEY_VALID_LAST_NAME, lastNameValid);
         savedInstanceState.putBoolean(KEY_VALID_EMAIL, emailValid);
@@ -569,7 +566,6 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
         portValid = savedInstanceState.getBoolean(KEY_VALID_PORT);
         usernameValid = savedInstanceState.getBoolean(KEY_VALID_USERNAME);
         passwordValid = savedInstanceState.getBoolean(KEY_VALID_PASSWORD);
-        confirmPasswordValid = savedInstanceState.getBoolean(KEY_VALID_CONFIRM_PASSWORD);
         firstNameValid = savedInstanceState.getBoolean(KEY_VALID_FIRST_NAME);
         lastNameValid = savedInstanceState.getBoolean(KEY_VALID_LAST_NAME);
         emailValid = savedInstanceState.getBoolean(KEY_VALID_EMAIL);
@@ -632,7 +628,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
      * Called when a user interacts with the editConfirmPassword text box
      */
     private void onEditConfirmPasswordInteraction() {
-        confirmPasswordValid = validateConfirmPassword();
+        passwordValid = validateConfirmPassword();
         setLoginBtnEnabled(areFieldsValid());
     }
 
@@ -690,7 +686,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     private void setRegister(boolean register) {
         int visibility = register ? View.VISIBLE : View.GONE;
 
-        // show or hide register fields
+        // shouldShow or hide register fields
         rowConfirmPassword.setVisibility(visibility);
         rowFirstName.setVisibility(visibility);
         rowLastName.setVisibility(visibility);
@@ -721,8 +717,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
 
         if (register) {
             valid = hostValid && portValid && usernameValid && passwordValid &&
-                    confirmPasswordValid && firstNameValid && lastNameValid &&
-                    emailValid && genderValid;
+                    firstNameValid && lastNameValid && emailValid && genderValid;
         } else {
             valid = hostValid && portValid && usernameValid && passwordValid;
         }
@@ -1057,7 +1052,7 @@ public class LoginFragment extends Fragment implements LoginTask.Context,
     /**
      * Shows or hides the progress spinner
      *
-     * @param show whether to show the spinner
+     * @param show whether to shouldShow the spinner
      */
     private void showProgressSpinner(boolean show) {
         if (show) {

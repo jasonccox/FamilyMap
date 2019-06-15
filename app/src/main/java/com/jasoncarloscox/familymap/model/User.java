@@ -96,6 +96,13 @@ public class User {
     }
 
     /**
+     * @return the user's full name
+     */
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
+    /**
      * @return the user's gender
      */
     public String getGender() {

@@ -106,64 +106,8 @@ public class SearchActivity extends AppCompatActivity {
     }
 
     private void search(String query) {
-        List<Object> results = searchPersonAndAncestors(
-                query.toLowerCase(), model.getRootPerson());
+        List<Object> results = model.searchPersonsAndEvents(query);
 
         displaySearchResults(results);
-    }
-
-    private List<Object> searchPersonAndAncestors(String query, Person person) {
-        List<Object> results = new ArrayList<>();
-
-        if (person == null) {
-            return results;
-        }
-
-        if (isSearchMatch(query, person)) {
-            results.add(person);
-        }
-
-        for (Event event : model.getFilter().filter(person.getEvents())) {
-            if (isSearchMatch(query, event)) {
-                results.add(event);
-            }
-        }
-
-        results.addAll(searchPersonAndAncestors(query, person.getFather()));
-        results.addAll(searchPersonAndAncestors(query, person.getMother()));
-
-        return results;
-    }
-
-    private boolean isSearchMatch(String query, Event event) {
-        if (event.getType().toLowerCase().contains(query)) {
-            return true;
-        }
-
-        if (event.getCity().toLowerCase().contains(query)) {
-            return true;
-        }
-
-        if (event.getCountry().toLowerCase().contains(query)) {
-            return true;
-        }
-
-        if (String.valueOf(event.getYear()).contains(query)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private boolean isSearchMatch(String query, Person person) {
-        if (person.getFirstName().toLowerCase().contains(query)) {
-            return true;
-        }
-
-        if (person.getLastName().toLowerCase().contains(query)) {
-            return true;
-        }
-
-        return false;
     }
 }

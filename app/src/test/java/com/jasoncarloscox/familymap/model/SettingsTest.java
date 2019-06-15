@@ -16,17 +16,17 @@ public class SettingsTest {
 
     @Test
     public void detectsAlteration() {
-        settings.setShowLifeLines(!settings.showLifeLines());
+        settings.setShouldShowLifeLines(!settings.shouldShowLifeLines());
         assertTrue(settings.isAltered());
         assertTrue(settings.areLinesAltered());
         assertTrue(settings.isLifeLineVisibilityAltered());
-        settings.setShowLifeLines(!settings.showLifeLines());
+        settings.setShouldShowLifeLines(!settings.shouldShowLifeLines());
         assertFalse(settings.isAltered());
         assertFalse(settings.areLinesAltered());
         assertFalse(settings.isLifeLineVisibilityAltered());
 
-        Color originalColor = settings.getLifeLineColor();
-        settings.setLifeLineColor(Color.BLACK);
+        LineSetting.Color originalColor = settings.getLifeLineColor();
+        settings.setLifeLineColor(LineSetting.Color.BLACK);
         assertTrue(settings.isAltered());
         assertTrue(settings.areLinesAltered());
         assertTrue(settings.isLifeLineColorAltered());
@@ -35,17 +35,17 @@ public class SettingsTest {
         assertFalse(settings.areLinesAltered());
         assertFalse(settings.isLifeLineColorAltered());
 
-        settings.setShowSpouseLines(!settings.showSpouseLines());
+        settings.setShouldShowSpouseLines(!settings.shouldShowSpouseLines());
         assertTrue(settings.isAltered());
         assertTrue(settings.areLinesAltered());
         assertTrue(settings.isSpouseLineVisibilityAltered());
-        settings.setShowSpouseLines(!settings.showSpouseLines());
+        settings.setShouldShowSpouseLines(!settings.shouldShowSpouseLines());
         assertFalse(settings.isAltered());
         assertFalse(settings.areLinesAltered());
         assertFalse(settings.isSpouseLineVisibilityAltered());
 
         originalColor = settings.getSpouseLineColor();
-        settings.setSpouseLineColor(Color.BLACK);
+        settings.setSpouseLineColor(LineSetting.Color.BLACK);
         assertTrue(settings.isAltered());
         assertTrue(settings.areLinesAltered());
         assertTrue(settings.isSpouseLineColorAltered());
@@ -54,17 +54,17 @@ public class SettingsTest {
         assertFalse(settings.areLinesAltered());
         assertFalse(settings.isSpouseLineColorAltered());
 
-        settings.setShowTreeLines(!settings.showTreeLines());
+        settings.setShouldShowTreeLines(!settings.shouldShowTreeLines());
         assertTrue(settings.isAltered());
         assertTrue(settings.areLinesAltered());
         assertTrue(settings.isTreeLineVisibilityAltered());
-        settings.setShowTreeLines(!settings.showTreeLines());
+        settings.setShouldShowTreeLines(!settings.shouldShowTreeLines());
         assertFalse(settings.isAltered());
         assertFalse(settings.areLinesAltered());
         assertFalse(settings.isTreeLineVisibilityAltered());
 
         originalColor = settings.getTreeLineColor();
-        settings.setTreeLineColor(Color.BLACK);
+        settings.setTreeLineColor(LineSetting.Color.BLACK);
         assertTrue(settings.isAltered());
         assertTrue(settings.areLinesAltered());
         assertTrue(settings.isTreeLineColorAltered());
@@ -86,12 +86,12 @@ public class SettingsTest {
 
     @Test
     public void resetAlteredResets() {
-        settings.setShowLifeLines(!settings.showLifeLines());
-        settings.setLifeLineColor(Color.BLACK);
-        settings.setShowSpouseLines(!settings.showSpouseLines());
-        settings.setSpouseLineColor(Color.BLACK);
-        settings.setShowTreeLines(!settings.showTreeLines());
-        settings.setTreeLineColor(Color.BLACK);
+        settings.setShouldShowLifeLines(!settings.shouldShowLifeLines());
+        settings.setLifeLineColor(LineSetting.Color.BLACK);
+        settings.setShouldShowSpouseLines(!settings.shouldShowSpouseLines());
+        settings.setSpouseLineColor(LineSetting.Color.BLACK);
+        settings.setShouldShowTreeLines(!settings.shouldShowTreeLines());
+        settings.setTreeLineColor(LineSetting.Color.BLACK);
         settings.setMapType(MapType.TERRAIN);
 
         settings.resetAltered();

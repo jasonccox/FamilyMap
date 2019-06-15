@@ -105,9 +105,7 @@ public class MapFragment extends Fragment
     @Override
     public void onResume() {
         super.onResume();
-        if (model.getMapState() != null) {
-            model.getMapState().pushUpdatesToMap(map);
-        }
+        model.pushMapUpdatesTo(map, getResources());
     }
 
     @Override
@@ -116,7 +114,7 @@ public class MapFragment extends Fragment
         googleMap.setOnInfoWindowClickListener(this);
 
         map = new EventMap(googleMap);
-        model.getMapState().pushUpdatesToMap(map);
+        model.pushMapUpdatesTo(map, getResources());
 
         setSelectedEvent(selectedEvent, zoomOnMapLoad);
     }

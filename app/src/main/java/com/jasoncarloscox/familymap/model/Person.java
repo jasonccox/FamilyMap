@@ -25,11 +25,6 @@ public class Person implements Comparable<Person> {
     private Person mother;
     private Person spouse;
 
-    // TODO: getEvents returns events in chronological order
-    // TODO: refactor getFirstEvent to take in a filter and get the first
-    //  non-filtered event (and test)
-
-
     /**
      * Creates a new Person.
      * 
@@ -62,14 +57,12 @@ public class Person implements Comparable<Person> {
     }
 
     /**
-     * @param filter a filter describing which events to show, or null to
-     *               indicate that all events should be shown
      * @return this person's chronologically first event that matches the filter,
      *         or null if this person has no events matching the filter
      */
-    public Event getFirstEvent(EventFilter filter) {
+    public Event getFirstEvent() {
         for (int i = 0; i < events.size(); i++) {
-            if (filter == null || filter.showEvent(events.get(i))) {
+            if (Model.instance().shouldShow(events.get(i))) {
                 return events.get(i);
             }
         }
@@ -135,6 +128,13 @@ public class Person implements Comparable<Person> {
     }
 
     /**
+     * @return the person's full name
+     */
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
+    /**
      * @return the person's gender
      */
     public String getGender() {
@@ -190,26 +190,49 @@ public class Person implements Comparable<Person> {
         this.spouseID = spouseID;
     }
 
+    /**
+     * @return whether this person is the root person's father or one of his
+     *         ancestors
+     */
     public boolean isPaternalSide() {
         return isPaternalSide;
     }
 
+    /**
+     * @param paternalSide whether this person is the root person's father or
+     *                     one of his ancestors
+     */
     public void setPaternalSide(boolean paternalSide) {
         isPaternalSide = paternalSide;
     }
 
+    /**
+     * @return whether this person is the root person's mother or one of her
+     *         ancestors
+     */
     public boolean isMaternalSide() {
         return isMaternalSide;
     }
 
+    /**
+     * @param maternalSide whether this person is the root person's mother or
+     *                     one of her ancestors
+     */
     public void setMaternalSide(boolean maternalSide) {
         isMaternalSide = maternalSide;
     }
 
+    /**
+     * @return this person's father
+     */
     public Person getFather() {
         return father;
     }
 
+    /**
+     * Sets this person's father and adds this person as the father's child
+     * @param father this person's father
+     */
     public void setFather(Person father) {
         this.father = father;
         if (father != null) {
@@ -220,10 +243,17 @@ public class Person implements Comparable<Person> {
         }
     }
 
+    /**
+     * @return this person's mother
+     */
     public Person getMother() {
         return mother;
     }
 
+    /**
+     * Sets this person's mother and adds this person as the mother's child
+     * @param mother this person's mother
+     */
     public void setMother(Person mother) {
         this.mother = mother;
         if (mother != null) {
@@ -234,10 +264,16 @@ public class Person implements Comparable<Person> {
         }
     }
 
+    /**
+     * @return this person's spouse
+     */
     public Person getSpouse() {
         return spouse;
     }
 
+    /**
+     * @param spouse this person's spouse
+     */
     public void setSpouse(Person spouse) {
         this.spouse = spouse;
         if (spouse != null) {
@@ -247,7 +283,10 @@ public class Person implements Comparable<Person> {
         }
     }
 
-    public List<Relative> getRelatives() {
+    /**
+     * @return the members of the person's immediate family
+     */
+    public List<Relative> getFamily() {
         List<Relative> relatives = new ArrayList<>();
 
         if (father != null) {
@@ -309,8 +348,8 @@ public class Person implements Comparable<Person> {
             return 1;
         }
 
-        Event thisFirstEvent = this.getFirstEvent(null);
-        Event oFirstEvent = o.getFirstEvent(null);
+        Event thisFirstEvent = this.getFirstEvent();
+        Event oFirstEvent = o.getFirstEvent();
 
         if (thisFirstEvent == null && oFirstEvent == null) {
             return 0;

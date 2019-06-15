@@ -267,40 +267,40 @@ public class PersonTest {
         Person dad = new Person("dad");
         person.setFather(dad);
         assertEquals(Relative.Relationship.FATHER,
-                     person.getRelatives().get(0).getRelationship());
+                     person.getFamily().get(0).getRelationship());
         person.setFather(null);
 
         Person mom = new Person("mom");
         person.setMother(mom);
         assertEquals(Relative.Relationship.MOTHER,
-                person.getRelatives().get(0).getRelationship());
+                person.getFamily().get(0).getRelationship());
         person.setMother(null);
 
         Person wife = new Person("wife");
         wife.setGender(Gender.FEMALE);
         person.setSpouse(wife);
         assertEquals(Relative.Relationship.WIFE,
-                person.getRelatives().get(0).getRelationship());
+                person.getFamily().get(0).getRelationship());
 
         Person husband = new Person("husband");
         husband.setGender(Gender.MALE);
         person.setSpouse(husband);
         assertEquals(Relative.Relationship.HUSBAND,
-                person.getRelatives().get(0).getRelationship());
+                person.getFamily().get(0).getRelationship());
         person.setSpouse(null);
 
         Person son = new Person("son");
         son.setGender(Gender.MALE);
         son.setFather(person);
         assertEquals(Relative.Relationship.SON,
-                     person.getRelatives().get(0).getRelationship());
+                     person.getFamily().get(0).getRelationship());
         person = new Person("pid");
 
         Person daughter = new Person("daughter");
         daughter.setGender(Gender.FEMALE);
         daughter.setFather(person);
         assertEquals(Relative.Relationship.DAUGHTER,
-                person.getRelatives().get(0).getRelationship());
+                person.getFamily().get(0).getRelationship());
     }
 
     @Test
@@ -319,7 +319,7 @@ public class PersonTest {
         son.setGender(Gender.MALE);
         son.setFather(person);
 
-        List<Relative> relatives = person.getRelatives();
+        List<Relative> relatives = person.getFamily();
 
         assertEquals(Relative.Relationship.FATHER, relatives.get(0).getRelationship());
         assertEquals(Relative.Relationship.MOTHER, relatives.get(1).getRelationship());

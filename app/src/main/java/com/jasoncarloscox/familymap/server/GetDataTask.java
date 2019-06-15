@@ -8,10 +8,22 @@ import com.jasoncarloscox.familymap.server.result.ApiResult;
 import com.jasoncarloscox.familymap.server.result.EventsResult;
 import com.jasoncarloscox.familymap.server.result.PersonsResult;
 
+/**
+ * AsyncTask to fetch persons and events from a server and load them into the
+ * model.
+ */
 public class GetDataTask extends AsyncTask<DataRequest, Object, Object>
         implements GetPersonsTask.Context, GetEventsTask.Context {
 
+    /**
+     * Implement this interface to be alerted when the task completes.
+     */
     public interface Context {
+
+        /**
+         * Called when the task completes.
+         * @param result the result of the task
+         */
         void onGetDataComplete(ApiResult result);
     }
 
@@ -20,6 +32,12 @@ public class GetDataTask extends AsyncTask<DataRequest, Object, Object>
     private PersonsResult personsResult;
     private EventsResult eventsResult;
 
+    /**
+     * Creates a new GetDataTask
+     *
+     * @param context the context
+     * @param rootPersonId the id of the root person in the family tree
+     */
     public GetDataTask(Context context, String rootPersonId) {
         this.context = context;
         this.rootPersonId = rootPersonId;
@@ -33,7 +51,7 @@ public class GetDataTask extends AsyncTask<DataRequest, Object, Object>
         return null;
     }
 
-    @Override
+    @Override // from GetEventsTask.Context
     public void onGetEventsComplete(EventsResult result) {
         eventsResult = result;
 
@@ -42,7 +60,7 @@ public class GetDataTask extends AsyncTask<DataRequest, Object, Object>
         }
     }
 
-    @Override
+    @Override // from GetPersonsTask.Context
     public void onGetPersonsComplete(PersonsResult result) {
         personsResult = result;
 
@@ -51,6 +69,10 @@ public class GetDataTask extends AsyncTask<DataRequest, Object, Object>
         }
     }
 
+    /**
+     * Processes the results of getting the data, either storing it in the model
+     * or reporting an error.
+     */
     private void processResults() {
         if (personsResult.isSuccess() && eventsResult.isSuccess()) {
             Model.instance().load(personsResult.getPersons(), rootPersonId,
@@ -63,6 +85,10 @@ public class GetDataTask extends AsyncTask<DataRequest, Object, Object>
         }
     }
 
+    /**
+     * @param results various ApiResults
+     * @return the combined error message from all the results
+     */
     private String generateResultMessage(ApiResult... results) {
         StringBuilder msg = new StringBuilder();
 

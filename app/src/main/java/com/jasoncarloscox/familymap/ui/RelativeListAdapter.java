@@ -47,12 +47,7 @@ public class RelativeListAdapter extends RecyclerView.Adapter<RelativeListAdapte
                                                        ICON_SIZE_DP);
             imgIcon.setImageDrawable(icon);
 
-            String name = itemView.getResources().getString(R.string.full_name,
-                                                            relative.getFirstName(),
-                                                            relative.getLastName());
-
-            txtTitle.setText(name);
-
+            txtTitle.setText(relative.getFullName());
             txtSubtitle.setText(relationshipString(relative.getRelationship()));
 
             itemView.setOnClickListener(new View.OnClickListener() {

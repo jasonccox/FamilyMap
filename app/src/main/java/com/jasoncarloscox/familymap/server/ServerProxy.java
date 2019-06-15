@@ -100,23 +100,7 @@ public class ServerProxy {
         assert ApiResult.class.isAssignableFrom(resultClass);
 
         try {
-            URL url = new URL("http://" + host + ":" + port + request.getPath());
-            HttpURLConnection http = (HttpURLConnection) url.openConnection();
-
-            http.setRequestMethod(request.getMethod());
-            http.addRequestProperty(ACCEPT_HEADER, ACCEPT_VALUE);
-
-            if (request.getAuthToken() != null) {
-                http.addRequestProperty(AUTH_HEADER, request.getAuthToken());
-            }
-
-            if (request.sendBody()) {
-                http.setDoOutput(true);
-            } else {
-                http.setDoOutput(false);
-            }
-
-            Log.i(TAG, "Connecting to " + url.toString());
+            HttpURLConnection http = setupConnection(request);
 
             http.connect();
 
@@ -154,6 +138,33 @@ public class ServerProxy {
                 return new ApiResult(false, msg);
             }
         }
+    }
+
+    /**
+     * Initialize an HTTP connection
+     *
+     * @param request the request object
+     * @return a connection
+     * @throws IOException if an I/O error occurs
+     */
+    private HttpURLConnection setupConnection(ApiRequest request) throws IOException {
+        URL url = new URL("http://" + host + ":" + port + request.getPath());
+        HttpURLConnection http = (HttpURLConnection) url.openConnection();
+
+        http.setRequestMethod(request.getMethod());
+        http.addRequestProperty(ACCEPT_HEADER, ACCEPT_VALUE);
+
+        if (request.getAuthToken() != null) {
+            http.addRequestProperty(AUTH_HEADER, request.getAuthToken());
+        }
+
+        if (request.sendBody()) {
+            http.setDoOutput(true);
+        } else {
+            http.setDoOutput(false);
+        }
+
+        return http;
     }
 
     /**

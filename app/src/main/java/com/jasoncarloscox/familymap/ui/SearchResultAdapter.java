@@ -66,8 +66,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 
             txtTitle.setText(itemView.getResources().getString(
                     R.string.event_result_title,
-                    event.getPerson().getFirstName(),
-                    event.getPerson().getLastName(),
+                    event.getPerson().getFullName(),
                     event.getType()));
 
             txtSubtitle.setText(itemView.getResources().getString(
@@ -93,10 +92,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
                     person.getGender(),
                     ICON_SIZE_DP));
 
-            txtTitle.setText(itemView.getResources().getString(
-                    R.string.full_name,
-                    person.getFirstName(),
-                    person.getLastName()));
+            txtTitle.setText(person.getFullName());
 
             txtSubtitle.setText(ResourceGenerator.genderString(
                     person.getGender(),

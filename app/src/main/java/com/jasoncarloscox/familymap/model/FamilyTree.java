@@ -7,17 +7,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Represents a family tree with persons and events.
+ * Represents a family tree with persons and events. These methods will largely
+ * just be echoed by the Model for access outside of the model package.
  */
-public class FamilyTree {
+class FamilyTree {
 
     private Map<String, Person> personsById = new HashMap<>();
     private Map<String, Event> eventsById = new HashMap<>();
-
+    private Set<String> eventTypes = new HashSet<>();
     private Person rootPerson;
 
-    private Set<String> eventTypes = new HashSet<>();
-    
+    /**
+     * Creates a new FamilyTree.
+     */
     protected FamilyTree() {}
 
     /**
@@ -61,8 +63,18 @@ public class FamilyTree {
         return personsById.get(id);
     }
 
+    /**
+     * @return all of the persons in the family tree
+     */
     protected Collection<Person> getPersons() {
         return personsById.values();
+    }
+
+    /**
+     * @return the root of the family tree
+     */
+    protected Person getRootPerson() {
+        return rootPerson;
     }
 
     /**
@@ -87,10 +99,6 @@ public class FamilyTree {
      */
     protected Set<String> getEventTypes() {
         return eventTypes;
-    }
-
-    protected Person getRootPerson() {
-        return rootPerson;
     }
 
     /**
@@ -122,8 +130,8 @@ public class FamilyTree {
      * on the maternal or paternal side of the rootPerson's tree.
      */
     private void setupTree() {
-        rootPerson.setPaternalSide(true);
-        rootPerson.setMaternalSide(true);
+        rootPerson.setPaternalSide(false);
+        rootPerson.setMaternalSide(false);
 
         rootPerson.setFather(personsById.get(rootPerson.getFatherID()));
         rootPerson.setMother(personsById.get(rootPerson.getMotherID()));
@@ -131,6 +139,7 @@ public class FamilyTree {
 
         setupAncestors(rootPerson.getFather(), true, false);
         setupAncestors(rootPerson.getMother(), false, true);
+        setupAncestors(rootPerson.getSpouse(), false, false);
     }
 
     /**
