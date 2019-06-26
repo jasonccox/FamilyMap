@@ -461,15 +461,15 @@ public class Model {
      * @return whether the event matches the query
      */
     private boolean isSearchMatch(String query, Event event) {
-        if (event.getType().toLowerCase().contains(query)) {
+        if (event.getType() != null && event.getType().toLowerCase().contains(query)) {
             return true;
         }
 
-        if (event.getCity().toLowerCase().contains(query)) {
+        if (event.getCity() != null && event.getCity().toLowerCase().contains(query)) {
             return true;
         }
 
-        if (event.getCountry().toLowerCase().contains(query)) {
+        if (event.getCountry() != null && event.getCountry().toLowerCase().contains(query)) {
             return true;
         }
 

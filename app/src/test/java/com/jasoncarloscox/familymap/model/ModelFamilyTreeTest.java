@@ -1,15 +1,12 @@
 package com.jasoncarloscox.familymap.model;
 
-import com.google.android.gms.internal.maps.zzt;
-import com.google.android.gms.maps.model.Marker;
-
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -27,8 +24,6 @@ public class ModelFamilyTreeTest {
     public void cleanup() {
         model.clear();
     }
-
-    // TODO: test search
 
     @Test
     public void loadSetsUpRelationships() {
@@ -191,4 +186,237 @@ public class ModelFamilyTreeTest {
         assertNull(model.getEvent("cantfindme"));
     }
 
+    @Test
+    public void searchMatchesPersonName() {
+        Person person = new Person("pid");
+        person.setFirstName("first");
+        person.setLastName("last");
+
+        Collection<Person> persons = new ArrayList<>();
+        persons.add(person);
+
+        model.load(persons, person.getId(), null);
+
+        List<Object> results = model.searchPersonsAndEvents("first");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Person);
+        assertEquals(person.getId(), ((Person) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("last");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Person);
+        assertEquals(person.getId(), ((Person) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("first last");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Person);
+        assertEquals(person.getId(), ((Person) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("fi");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Person);
+        assertEquals(person.getId(), ((Person) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("FIRST");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Person);
+        assertEquals(person.getId(), ((Person) results.get(0)).getId());
+    }
+
+    @Test
+    public void searchMatchesEventType() {
+        Event event = new Event("eid");
+        event.setType("type");
+
+        Collection<Event> events = new ArrayList<>();
+        events.add(event);
+
+        Person person = new Person("pid");
+        person.addEvent(event);
+
+        Collection<Person> persons = new ArrayList<>();
+        persons.add(person);
+
+        model.load(persons, person.getId(), events);
+
+        List<Object> results = model.searchPersonsAndEvents("type");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("pe");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("TYPE");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+    }
+
+    @Test
+    public void searchMatchesEventCity() {
+        Event event = new Event("eid");
+        event.setCity("city");
+
+        Collection<Event> events = new ArrayList<>();
+        events.add(event);
+
+        Person person = new Person("pid");
+        person.addEvent(event);
+
+        Collection<Person> persons = new ArrayList<>();
+        persons.add(person);
+
+        model.load(persons, person.getId(), events);
+
+        List<Object> results = model.searchPersonsAndEvents("city");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("it");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("CITY");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+    }
+
+    @Test
+    public void searchMatchesEventCountry() {
+        Event event = new Event("eid");
+        event.setCountry("country");
+
+        Collection<Event> events = new ArrayList<>();
+        events.add(event);
+
+        Person person = new Person("pid");
+        person.addEvent(event);
+
+        Collection<Person> persons = new ArrayList<>();
+        persons.add(person);
+
+        model.load(persons, person.getId(), events);
+
+        List<Object> results = model.searchPersonsAndEvents("country");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("ntr");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("COUNTRY");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+    }
+
+    @Test
+    public void searchMatchesEventYear() {
+        Event event = new Event("eid");
+        event.setYear(2000);
+
+        Collection<Event> events = new ArrayList<>();
+        events.add(event);
+
+        Person person = new Person("pid");
+        person.addEvent(event);
+
+        Collection<Person> persons = new ArrayList<>();
+        persons.add(person);
+
+        model.load(persons, person.getId(), events);
+
+        List<Object> results = model.searchPersonsAndEvents("2000");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+
+        results = model.searchPersonsAndEvents("20");
+        assertEquals(1, results.size());
+        assertTrue(results.get(0) instanceof Event);
+        assertEquals(event.getId(), ((Event) results.get(0)).getId());
+    }
+
+    @Test
+    public void searchSearchesEntireTree() {
+        Person person = new Person("pid1");
+        person.setFirstName("John");
+        person.setLastName("Smith");
+
+        Person dad = new Person("pid2");
+        dad.setFirstName("Bob");
+        dad.setLastName("Smith");
+
+        Person mom = new Person("pid3");
+        mom.setFirstName("Sally");
+        mom.setLastName("Smith");
+
+        person.setFather(dad);
+        person.setMother(mom);
+
+        Collection<Person> persons = new ArrayList<>();
+        persons.add(person);
+        persons.add(dad);
+        persons.add(mom);
+
+        Event personEvent = new Event("eid1");
+        personEvent.setType("birth");
+
+        Event dadEvent = new Event("eid2");
+        dadEvent.setType("birth");
+
+        Event momEvent = new Event("eid3");
+        momEvent.setType("birth");
+
+        Collection<Event> events = new ArrayList<>();
+        events.add(personEvent);
+        events.add(dadEvent);
+        events.add(momEvent);
+
+        person.addEvent(personEvent);
+        dad.addEvent(dadEvent);
+        mom.addEvent(momEvent);
+
+        model.load(persons, person.getId(), events);
+
+        List<Object> results = model.searchPersonsAndEvents("Smith");
+        assertEquals(3, results.size());
+
+        results = model.searchPersonsAndEvents("birth");
+        assertEquals(3, results.size());
+    }
+
+    @Test
+    public void searchReturnsEmptyListIfNoMatch() {
+        Event event = new Event("eid");
+        event.setType("type");
+        event.setCity("city");
+        event.setCountry("country");
+        event.setYear(2000);
+
+        Collection<Event> events = new ArrayList<>();
+        events.add(event);
+
+        Person person = new Person("pid");
+        person.setFirstName("first");
+        person.setLastName("last");
+        person.addEvent(event);
+
+        Collection<Person> persons = new ArrayList<>();
+        persons.add(person);
+
+        model.load(persons, person.getId(), events);
+
+        List<Object> results = model.searchPersonsAndEvents("something");
+        assertEquals(0, results.size());
+    }
 }
